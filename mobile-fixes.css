@@ -1,0 +1,180 @@
+/* French Quest launch, mobile, and question-page UX refinements */
+
+.launch-hero {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.launch-hero h2,
+.info-panel h2 {
+  margin-bottom: 4px;
+  color: var(--blue);
+  line-height: 1.1;
+}
+
+.launch-hero h2 {
+  max-width: 760px;
+  font-size: clamp(2rem, 5vw, 3.15rem);
+}
+
+.launch-copy,
+.info-panel p {
+  color: var(--muted);
+  font-size: 1.05rem;
+  font-weight: 650;
+  line-height: 1.55;
+}
+
+.launch-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.launch-points span {
+  padding: 9px 12px;
+  border: 1px solid rgba(25, 127, 131, 0.28);
+  border-radius: 999px;
+  background: #f0fbfa;
+  color: var(--teal-dark);
+  font-size: 0.9rem;
+  font-weight: 850;
+}
+
+.launch-actions {
+  justify-content: flex-start;
+}
+
+.launch-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 18px;
+}
+
+.info-panel {
+  display: grid;
+  gap: 8px;
+}
+
+.disclaimer-panel {
+  grid-column: 1 / -1;
+}
+
+.disclaimer-panel p {
+  font-size: 0.96rem;
+}
+
+.completion-cta {
+  margin: 22px 0 0;
+  text-align: left;
+}
+
+.mission-card .mission-head h2 {
+  font-size: 1.15rem;
+  line-height: 1.12;
+  margin-bottom: 2px;
+}
+
+.mission-card .mission-head .eyebrow {
+  margin-bottom: 3px;
+}
+
+.mission-card .mission-head {
+  margin-bottom: 10px;
+}
+
+.mission-card .question-text {
+  margin-top: 18px;
+}
+
+.mission-card .review-line {
+  margin-top: 6px;
+  gap: 7px;
+  font-size: 1.08rem;
+  line-height: 1.45;
+}
+
+.mission-card .review-line p {
+  margin-bottom: 0;
+}
+
+.mission-card .review-line strong {
+  font-size: 1.02rem;
+}
+
+.feedback-result {
+  margin-top: 6px;
+  margin-bottom: 18px;
+  font-size: 1.05rem;
+}
+
+@media (min-width: 761px) {
+  .mission-card .mission-head h2 {
+    font-size: 1.2rem;
+  }
+
+  .mission-card .mission-head:has(.review-line) h2 {
+    font-size: 1.45rem;
+  }
+}
+
+@media (max-width: 760px) {
+  body {
+    padding-bottom: 92px;
+  }
+
+  .launch-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .launch-hero h2 {
+    font-size: 1.85rem;
+  }
+
+  .launch-actions,
+  .journey .actions,
+  .info-panel .actions,
+  .completion-cta .actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .journey .actions .primary-btn {
+    width: 100%;
+    min-height: 54px;
+  }
+
+  .mission-card .mission-head h2 {
+    font-size: 1.08rem;
+  }
+
+  .mission-card .mission-head:has(.review-line) h2 {
+    font-size: 1.35rem;
+  }
+
+  .mission-card .review-line {
+    font-size: 1rem;
+  }
+
+  .question-text {
+    font-size: clamp(1.22rem, 6vw, 1.55rem);
+    line-height: 1.28;
+  }
+
+  .mission-card .actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    margin: 18px -18px -18px;
+    padding: 12px 18px calc(12px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 -12px 28px rgba(38, 49, 61, 0.12);
+    backdrop-filter: blur(12px);
+  }
+
+  .mission-card .actions .primary-btn,
+  .mission-card .actions .secondary-btn {
+    min-height: 46px;
+  }
+}
