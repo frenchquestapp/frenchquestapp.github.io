@@ -10,6 +10,12 @@ const skillPerformanceLabels = {
   expression: "Expression",
   reading: "Reading"
 };
+const completeSkillPerformanceLabels = {
+  vocabulary: "字彙",
+  situation: "情境理解",
+  expression: "回應理解",
+  reading: "閱讀理解"
+};
 
 const defaultProgress = {
   totalXp: 0,
@@ -20,6 +26,7 @@ const defaultProgress = {
   completedMissions: [],
   wrongQuestionIds: [],
   guessedQuestionIds: [],
+  activeSession: null,
   skillXp: {
     vocabulary: 0,
     reading: 0,
@@ -66,7 +73,8 @@ function loadProgress() {
       },
       wrongQuestionIds: parsed.wrongQuestionIds || [],
       guessedQuestionIds: parsed.guessedQuestionIds || [],
-      completedMissions: parsed.completedMissions || []
+      completedMissions: parsed.completedMissions || [],
+      activeSession: parsed.activeSession || null
     };
 
     if (!progress.lastMissionAttempt && parsed.lastAttempt?.mission !== "Coffee Shop Review") {
@@ -86,6 +94,78 @@ function loadProgress() {
 
 function saveProgress() {
   localStorage.setItem(storageKey, JSON.stringify(state.progress));
+}
+
+function isValidActiveSession(session) {
+  if (!session || session.version !== 1) return false;
+  if (session.missionId !== "coffee_shop" || session.mode !== "mission") return false;
+  if (!["question", "feedback"].includes(session.screen)) return false;
+  if (!Array.isArray(session.activeQuestions) || session.activeQuestions.length === 0) return false;
+  if (!Array.isArray(session.answers)) return false;
+  if (!Number.isInteger(session.currentQuestion)) return false;
+  if (session.currentQuestion < 0 || session.currentQuestion >= session.activeQuestions.length) return false;
+
+  const knownQuestionIds = new Set(questions.map((question) => question.id));
+  const hasValidQuestions = session.activeQuestions.every((question) => (
+    question &&
+    knownQuestionIds.has(question.id) &&
+    Array.isArray(question.options) &&
+    Number.isInteger(question.correctIndexOverride)
+  ));
+  if (!hasValidQuestions) return false;
+
+  if (session.screen === "feedback" && session.answers.length !== session.currentQuestion + 1) return false;
+  if (session.screen === "question" && session.answers.length > session.currentQuestion) return false;
+
+  return true;
+}
+
+function saveActiveSession() {
+  if (state.reviewMode || !["question", "feedback"].includes(state.screen) || state.activeQuestions.length === 0) return;
+
+  const now = new Date().toISOString();
+  state.progress.activeSession = {
+    version: 1,
+    missionId: "coffee_shop",
+    mode: "mission",
+    screen: state.screen,
+    currentQuestion: state.currentQuestion,
+    selectedAnswer: state.selectedAnswer,
+    guessedCurrent: state.guessedCurrent,
+    answers: state.answers,
+    activeQuestions: state.activeQuestions,
+    xp: state.xp,
+    startedAt: state.progress.activeSession?.startedAt || now,
+    updatedAt: now
+  };
+  saveProgress();
+}
+
+function clearActiveSession() {
+  state.progress.activeSession = null;
+}
+
+function restoreActiveSession() {
+  const session = state.progress.activeSession;
+  if (!isValidActiveSession(session)) {
+    if (session) {
+      clearActiveSession();
+      saveProgress();
+    }
+    return false;
+  }
+
+  state.screen = session.screen;
+  state.currentQuestion = session.currentQuestion;
+  state.selectedAnswer = session.selectedAnswer;
+  state.guessedCurrent = Boolean(session.guessedCurrent);
+  state.answers = session.answers;
+  state.activeQuestions = session.activeQuestions;
+  state.reviewMode = false;
+  state.xp = Number(session.xp) || 0;
+  state.missionStartTime = session.startedAt ? Date.parse(session.startedAt) : Date.now();
+  state.questionStartTime = Date.now();
+  return true;
 }
 
 function uniqueIds(ids) {
@@ -109,7 +189,7 @@ async function loadMissionData() {
     questions = data;
     state.missionLoaded = true;
     state.readiness = state.progress.readiness || 0;
-    state.screen = "home";
+    state.screen = restoreActiveSession() ? state.screen : "home";
     render();
   } catch (error) {
     console.error("Mission loading failed:", error);
@@ -192,10 +272,10 @@ function calculateSkillPerformance(answers) {
   return performance;
 }
 
-function getSkillPerformanceTiles(skillPerformance) {
+function getSkillPerformanceTiles(skillPerformance, labels = skillPerformanceLabels) {
   if (!skillPerformance) return [];
 
-  return Object.entries(skillPerformanceLabels).map(([skill, label]) => {
+  return Object.entries(labels).map(([skill, label]) => {
     const result = skillPerformance[skill] || { correct: 0, total: 0, percent: null };
     return {
       label,
@@ -314,6 +394,7 @@ function renderHome() {
       <p class="eyebrow">Launch Version 1</p>
       <h2>Practice TEF Canada French through real Canadian life missions.</h2>
       <p class="launch-copy">為中文使用者設計的 TEF Canada 法文情境練習工具。</p>
+      <p class="launch-copy">從零開始的 TEF Canada 情境入門；更高程度內容陸續推出。</p>
       <p class="launch-copy">French Quest helps TEF Canada learners practice everyday French for real situations: ordering coffee, shopping for groceries, and visiting a bank.</p>
       <div class="launch-points">
         <span>Original TEF-style questions</span>
@@ -381,8 +462,8 @@ function renderHome() {
 
         <div class="actions">
           <button class="primary-btn" id="startMission" ${state.missionLoaded ? "" : "disabled"}>Start Coffee Shop Mission</button>
-          ${hasCompletedCoffeeShop ? `<button class="secondary-btn" id="retakeMission">Retake</button>` : ""}
-          ${reviewCount ? `<button class="secondary-btn" id="reviewMission">Review ${reviewCount} Weak Spots</button>` : ""}
+          ${hasCompletedCoffeeShop ? `<button class="secondary-btn" id="retakeMission">重新挑戰</button>` : ""}
+          ${reviewCount ? `<button class="secondary-btn" id="reviewMission">複習 ${reviewCount} 題待加強</button>` : ""}
         </div>
       </div>
 
@@ -486,6 +567,7 @@ function startMission({ randomizeQuestions = false, randomizeOptions = false, re
   state.activeQuestions = prepareQuestionsForSession(questions, { randomizeQuestions, randomizeOptions });
   state.missionStartTime = Date.now();
   state.questionStartTime = Date.now();
+  saveActiveSession();
   render();
 }
 
@@ -523,7 +605,7 @@ function renderQuestion() {
 
       <div class="question-meta">
         <span class="pill">Question ${state.currentQuestion + 1} / ${activeQuestions.length}</span>
-        <span class="pill">${state.reviewMode ? "Weak spots" : "Canadian daily life"}</span>
+        <span class="pill">${state.reviewMode ? "待加強題目" : "Canadian daily life"}</span>
       </div>
 
       <div class="meter" aria-label="Mission progress">
@@ -550,12 +632,14 @@ function renderQuestion() {
   document.querySelectorAll(".option").forEach((button) => {
     button.addEventListener("click", () => {
       state.selectedAnswer = Number(button.dataset.option);
+      saveActiveSession();
       renderQuestion();
     });
   });
 
   document.getElementById("guessToggle").addEventListener("click", () => {
     state.guessedCurrent = !state.guessedCurrent;
+    saveActiveSession();
     renderQuestion();
   });
 
@@ -581,6 +665,7 @@ function submitAnswer() {
 
   if (isCorrect) state.xp += xpPerCorrect;
   state.screen = "feedback";
+  saveActiveSession();
   render();
 }
 
@@ -659,6 +744,7 @@ function nextQuestion() {
   state.guessedCurrent = false;
   state.questionStartTime = Date.now();
   state.screen = "question";
+  saveActiveSession();
   render();
 }
 
@@ -731,6 +817,7 @@ function finishMission() {
   } else {
     state.progress.lastMissionAttempt = attemptSummary;
     state.progress.lastAttempt = attemptSummary;
+    clearActiveSession();
   }
 
   saveProgress();
@@ -745,45 +832,45 @@ function renderComplete() {
   const guessedCount = getGuessedAnswers().length;
   const totalTimeMs = getTotalAnswerTimeMs();
   const averageTimeMs = activeQuestions.length ? totalTimeMs / activeQuestions.length : 0;
-  const skillTiles = getSkillPerformanceTiles(calculateSkillPerformance(state.answers));
+  const skillTiles = getSkillPerformanceTiles(calculateSkillPerformance(state.answers), completeSkillPerformanceLabels);
   const reviewCount = getReviewQuestions().length;
   const nextStepText = reviewCount === 0
-    ? "Great work — you cleared your weak spots for this mission. Next mission: Grocery Store — coming soon."
-    : "Next: Review wrong and guessed questions to build a stronger TEF profile.";
+    ? "太好了！這次任務的待加強題目都已經複習完成。下一個任務：Grocery Store — coming soon."
+    : "下一步：複習答錯與不確定的題目，強化你的 TEF 情境理解。";
 
   app.innerHTML = `
     <section class="panel complete-card">
-      <p class="eyebrow">${state.reviewMode ? "Review Complete" : "Coffee Shop Stamp Earned"}</p>
-      <h2>${state.reviewMode ? "Review Complete" : "Mission Complete"}</h2>
-      <p>You practiced a real Canadian coffee shop situation with TEF-style practical French.</p>
+      <p class="eyebrow">${state.reviewMode ? "複習完成" : "任務完成"}</p>
+      <h2>${state.reviewMode ? "複習完成" : "任務完成"}</h2>
+      <p>你剛完成了一次加拿大咖啡店情境的 TEF-style 法文練習。</p>
 
       <div class="score-row">
         <div class="stat-card">
-          <span class="stat-label">Final Score</span>
+          <span class="stat-label">本次得分</span>
           <strong>${score} / ${activeQuestions.length}</strong>
         </div>
         <div class="stat-card">
-          <span class="stat-label">XP Earned</span>
+          <span class="stat-label">獲得 XP</span>
           <strong>${state.xp}</strong>
         </div>
         <div class="stat-card">
-          <span class="stat-label">TEF Practice Progress</span>
+          <span class="stat-label">TEF 練習進度</span>
           <strong>${state.progress.readiness}%</strong>
         </div>
         <div class="stat-card">
-          <span class="stat-label">Wrong Questions</span>
+          <span class="stat-label">答錯題目</span>
           <strong>${wrongCount}</strong>
         </div>
         <div class="stat-card">
-          <span class="stat-label">Guessed Questions</span>
+          <span class="stat-label">不確定題目</span>
           <strong>${guessedCount}</strong>
         </div>
         <div class="stat-card">
-          <span class="stat-label">Total Time</span>
+          <span class="stat-label">總作答時間</span>
           <strong>${formatDuration(totalTimeMs)}</strong>
         </div>
         <div class="stat-card">
-          <span class="stat-label">Average Time</span>
+          <span class="stat-label">平均每題時間</span>
           <strong>${formatDuration(averageTimeMs)}</strong>
         </div>
       </div>
@@ -800,19 +887,19 @@ function renderComplete() {
       <p class="next-step">${nextStepText}</p>
 
       <div class="panel info-panel early-access-card">
-        <p class="eyebrow">Early Access</p>
-        <h2>Want new missions next?</h2>
-        <p>Join the early access list to get updates when Grocery Store, Banking, and other TEF-style missions launch.</p>
-        <p>Your email will only be used for French Quest updates. You can unsubscribe anytime by contacting us.</p>
+        <p class="eyebrow">搶先體驗</p>
+        <h2>想解鎖更多生活情境任務嗎？</h2>
+        <p>加入搶先體驗名單，在超市、銀行與其他 TEF-style 任務上線時第一時間收到通知。</p>
+        <p>你的 Email 只會用於 French Quest 的產品更新與新任務通知。</p>
         <div class="actions">
-          <button class="primary-btn" data-action="waitlist">Join Early Access List</button>
-          <button class="secondary-btn" data-action="feedback">Give Feedback</button>
+          <button class="primary-btn" data-action="waitlist">加入搶先體驗名單</button>
+          <button class="secondary-btn" data-action="feedback">提供回饋</button>
         </div>
       </div>
 
       <div class="actions">
-        ${reviewCount ? `<button class="primary-btn" id="completeReviewMission">Review ${reviewCount} Weak Spots</button>` : ""}
-        <button class="secondary-btn" id="backToJourney">Back to Canada Journey</button>
+        ${reviewCount ? `<button class="primary-btn" id="completeReviewMission">複習 ${reviewCount} 題待加強</button>` : ""}
+        <button class="secondary-btn" id="backToJourney">回到加拿大任務地圖</button>
       </div>
     </section>
   `;

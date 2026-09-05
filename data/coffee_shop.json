@@ -12,12 +12,12 @@
       "sucre"
     ],
     "answer": "B",
-    "vocabulary": "café = coffee",
+    "vocabulary": "café = 咖啡",
     "pattern": "Je prends un café.",
     "tef_tip": "看到 Je prends + 飲品，先抓後面的品項。TEF 情境題常用點餐動作判斷顧客要什麼。",
     "skill": "vocabulary",
     "difficulty": "A1",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS002",
@@ -32,12 +32,12 @@
       "jus"
     ],
     "answer": "C",
-    "vocabulary": "thé = tea",
+    "vocabulary": "thé = 茶",
     "pattern": "Je voudrais un thé.",
     "tef_tip": "Je voudrais 常用來提出需求；看到這個結構後，注意後面的名詞，通常就是對方想要的東西。",
     "skill": "vocabulary",
     "difficulty": "A1",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS003",
@@ -52,12 +52,12 @@
       "pain"
     ],
     "answer": "C",
-    "vocabulary": "lait = milk",
+    "vocabulary": "lait = 牛奶",
     "pattern": "Avec du lait.",
     "tef_tip": "點餐題常用 avec + du/de la/des 表示「加／附……」。先抓配料，不要逐字翻。",
     "skill": "vocabulary",
     "difficulty": "A1",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS004",
@@ -72,12 +72,12 @@
       "tasse"
     ],
     "answer": "A",
-    "vocabulary": "sucre = sugar",
+    "vocabulary": "sucre = 糖",
     "pattern": "Avec du sucre.",
     "tef_tip": "看到 avec，先判斷後面的東西是「搭配／添加」的內容；這裡是在確認是否加糖。",
     "skill": "vocabulary",
     "difficulty": "A1",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS005",
@@ -92,12 +92,12 @@
       "assiette"
     ],
     "answer": "B",
-    "vocabulary": "tasse = cup",
+    "vocabulary": "tasse = 杯子",
     "pattern": "Une tasse de café.",
     "tef_tip": "une tasse de + 飲品 是「一杯……」。看到容器 + de，先找 de 後面的內容物。",
     "skill": "vocabulary",
     "difficulty": "A1",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS006",
@@ -112,12 +112,12 @@
       "porte"
     ],
     "answer": "C",
-    "vocabulary": "menu = menu",
+    "vocabulary": "menu = 菜單",
     "pattern": "Puis-je voir le menu ?",
     "tef_tip": "看到 Puis-je voir… ?，先判斷說話者是在提出請求；這裡是想看菜單，不是在結帳。",
     "skill": "vocabulary",
     "difficulty": "A1",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS007",
@@ -132,12 +132,12 @@
       "table"
     ],
     "answer": "A",
-    "vocabulary": "reçu = receipt",
+    "vocabulary": "reçu = 收據",
     "pattern": "Puis-je avoir un reçu ?",
     "tef_tip": "Puis-je avoir… ? 常用來索取物品。先看後面的名詞，判斷對方具體想拿到什麼。",
     "skill": "vocabulary",
     "difficulty": "A1",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS008",
@@ -152,12 +152,12 @@
       "caisse"
     ],
     "answer": "C",
-    "vocabulary": "addition = bill",
+    "vocabulary": "addition = 帳單",
     "pattern": "L'addition, s'il vous plaît.",
     "tef_tip": "L’addition, s’il vous plaît 是用餐結束、準備付款的訊號；看到 addition 就聯想到結帳。",
     "skill": "vocabulary",
     "difficulty": "A1",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS009",
@@ -172,12 +172,12 @@
       "Please"
     ],
     "answer": "C",
-    "vocabulary": "bonjour = hello",
+    "vocabulary": "bonjour = 你好",
     "pattern": "Bonjour !",
     "tef_tip": "Bonjour 在服務情境通常只是開場問候。先確認對話功能，不要把簡單問候誤判成其他資訊。",
     "skill": "situation",
     "difficulty": "A1",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS010",
@@ -192,12 +192,12 @@
       "Receipt needed"
     ],
     "answer": "B",
-    "vocabulary": "à emporter = takeout; sur place = dine-in",
+    "vocabulary": "à emporter = 外帶；sur place = 內用",
     "pattern": "À emporter ou sur place ?",
     "tef_tip": "ou 連接兩個選項時，先抓兩邊的關鍵詞。這類題重點是辨認對方要你做哪一種選擇。",
     "skill": "situation",
     "difficulty": "A1",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS011",
@@ -212,12 +212,12 @@
       "There is a discount."
     ],
     "answer": "C",
-    "vocabulary": "ça fait = the total is",
+    "vocabulary": "ça fait = 總共是",
     "pattern": "Ça fait + montant.",
     "tef_tip": "看到 Ça fait + 金額，重點先抓金額：這通常是在告訴你結帳總額。",
     "skill": "situation",
     "difficulty": "A1",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS012",
@@ -232,12 +232,12 @@
       "Would you like milk?"
     ],
     "answer": "A",
-    "vocabulary": "reçu = receipt",
+    "vocabulary": "reçu = 收據",
     "pattern": "Voulez-vous + nom ?",
     "tef_tip": "Voulez-vous… ? 是在詢問「要不要……」。先抓後面的名詞，判斷店員提供或確認的是什麼。",
     "skill": "situation",
     "difficulty": "A1",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS013",
@@ -252,12 +252,12 @@
       "Would you like a table?"
     ],
     "answer": "A",
-    "vocabulary": "lait = milk",
+    "vocabulary": "lait = 牛奶",
     "pattern": "Avec + nom ?",
     "tef_tip": "服務人員常省略完整句，只說 Avec… ? 做確認。遇到短句時，要用前後情境補出完整意思。",
     "skill": "situation",
     "difficulty": "A1",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS014",
@@ -272,12 +272,12 @@
       "Your receipt is ready."
     ],
     "answer": "B",
-    "vocabulary": "commande = order; prête = ready",
+    "vocabulary": "commande = 訂單／餐點；prête = 已準備好",
     "pattern": "Votre commande est prête.",
     "tef_tip": "看到 commande + prête，表示餐點已完成。這類題常測你能不能從狀態推斷下一步行動。",
     "skill": "situation",
     "difficulty": "A2",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS015",
@@ -292,12 +292,12 @@
       "Would you like a receipt?"
     ],
     "answer": "A",
-    "vocabulary": "bonne journée = have a nice day",
+    "vocabulary": "bonne journée = 祝你有美好的一天",
     "pattern": "Merci, bonne journée !",
     "tef_tip": "Merci, bonne journée 是結束服務互動的訊號。看到這類禮貌結尾，要判斷對話已進入收尾階段。",
     "skill": "situation",
     "difficulty": "A1",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS016",
@@ -312,12 +312,12 @@
       "Je paie par carte."
     ],
     "answer": "B",
-    "vocabulary": "bonjour = hello",
+    "vocabulary": "bonjour = 你好",
     "pattern": "Bonjour !",
     "tef_tip": "Best Response 題先看對話功能。對方只是問候時，回應也應維持在問候階段。",
     "skill": "expression",
     "difficulty": "A1",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS017",
@@ -332,12 +332,12 @@
       "Sur place, s'il vous plaît."
     ],
     "answer": "D",
-    "vocabulary": "sur place = dine-in",
+    "vocabulary": "sur place = 內用",
     "pattern": "Sur place, s'il vous plaît.",
     "tef_tip": "遇到二選一問句，答案通常要直接回應其中一個選項。先對應問題內容。",
     "skill": "expression",
     "difficulty": "A1",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS018",
@@ -352,12 +352,12 @@
       "Bonne nuit."
     ],
     "answer": "C",
-    "vocabulary": "reçu = receipt; oui = yes",
+    "vocabulary": "reçu = 收據；oui = 是／好的",
     "pattern": "Oui, s'il vous plaît.",
     "tef_tip": "Voulez-vous… ? 是 Yes/No 型問題。先判斷自己要回答「要／不要」，再選符合情境的簡短回應。",
     "skill": "expression",
     "difficulty": "A1",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS019",
@@ -372,12 +372,12 @@
       "C'est fermé."
     ],
     "answer": "B",
-    "vocabulary": "carte = card",
+    "vocabulary": "carte = 卡片（信用卡／金融卡）",
     "pattern": "Je paie par carte.",
     "tef_tip": "看到總金額代表對話進入付款階段。Best Response 要接續當下流程，這時最合理的是說明付款方式。",
     "skill": "expression",
     "difficulty": "A2",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS020",
@@ -392,12 +392,12 @@
       "Bonne journée !"
     ],
     "answer": "D",
-    "vocabulary": "bonne journée = have a nice day",
+    "vocabulary": "bonne journée = 祝你有美好的一天",
     "pattern": "Bonne journée !",
     "tef_tip": "對方用 bonne journée 收尾時，回應也要完成收尾。",
     "skill": "expression",
     "difficulty": "A1",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS021",
@@ -412,12 +412,12 @@
       "A croissant and juice"
     ],
     "answer": "A",
-    "vocabulary": "menu du jour = daily special; croissant = croissant",
+    "vocabulary": "menu du jour = 今日特餐；croissant = 可頌",
     "pattern": "Café + croissant = 5,99 $.",
     "tef_tip": "看到 + 或組合價格時，先確認套餐包含哪些品項，不要只盯著價格。",
     "skill": "reading",
     "difficulty": "A1",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS022",
@@ -432,12 +432,12 @@
       "Only on Monday"
     ],
     "answer": "B",
-    "vocabulary": "heures d'ouverture = opening hours; lundi-vendredi = Monday-Friday",
+    "vocabulary": "heures d'ouverture = 營業時間；lundi-vendredi = 週一到週五",
     "pattern": "lundi-vendredi 7h-18h",
     "tef_tip": "營業時間題先分開看「星期」和「時間」。這題關鍵是 lundi-vendredi，先確認開放的日期範圍。",
     "skill": "reading",
     "difficulty": "A1",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS023",
@@ -452,12 +452,12 @@
       "The café is closed"
     ],
     "answer": "C",
-    "vocabulary": "paiement = payment; carte = card; seulement = only",
+    "vocabulary": "paiement = 付款；carte = 卡片（信用卡／金融卡）；seulement = 只限／只有",
     "pattern": "Paiement par carte seulement.",
     "tef_tip": "看到 seulement 要特別注意限制條件，表示「只有／僅限」。這類字常直接決定正確答案。",
     "skill": "reading",
     "difficulty": "A2",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS024",
@@ -472,12 +472,12 @@
       "Pick up the order"
     ],
     "answer": "D",
-    "vocabulary": "commande = order; numéro = number; prête = ready",
+    "vocabulary": "commande = 訂單／餐點；numéro = 號碼；prête = 已準備好",
     "pattern": "Votre commande numéro 18 est prête.",
     "tef_tip": "看到 commande + prête，不要只翻譯句子；要進一步判斷顧客下一步應該去取餐。",
     "skill": "reading",
     "difficulty": "A2",
-    "status": "draft"
+    "status": "published"
   },
   {
     "id": "CS025",
@@ -492,11 +492,11 @@
       "Free drinks today"
     ],
     "answer": "B",
-    "vocabulary": "fermé = closed; aujourd'hui = today; rénovation = renovation",
+    "vocabulary": "fermé = 關閉／暫停營業；aujourd'hui = 今天；rénovation = 裝修",
     "pattern": "Fermé aujourd'hui pour rénovation.",
     "tef_tip": "公告題先抓「目前狀態」再看原因。Fermé aujourd’hui 已經先告訴你今天不營業。",
     "skill": "reading",
     "difficulty": "A2",
-    "status": "draft"
+    "status": "published"
   }
 ]
