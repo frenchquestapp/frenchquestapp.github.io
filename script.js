@@ -526,7 +526,7 @@ function renderHome() {
         <p class="eyebrow">Early Access</p>
         <h2>Get new missions when they launch.</h2>
         <p>Grocery Store and Banking missions are coming next. Join the early access list to get updates when new TEF practice missions are added.</p>
-        <p>Your email will only be used for French Quest updates. You can unsubscribe anytime by contacting us.</p>
+        <p>Your email will only be used for French Quest updates. 有任何問題或想取消接收 French Quest 更新，歡迎來信 <a href="mailto:bonjour.frenchquest@gmail.com">bonjour.frenchquest@gmail.com</a></p>
         <div class="actions">
           <button class="primary-btn" data-action="waitlist">Join Early Access List</button>
         </div>
@@ -852,10 +852,6 @@ function renderComplete() {
         <div class="stat-card">
           <span class="stat-label">獲得 XP</span>
           <strong>${state.xp}</strong>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label">TEF 練習進度</span>
-          <strong>${state.progress.readiness}%</strong>
         </div>
         <div class="stat-card">
           <span class="stat-label">答錯題目</span>
