@@ -4,6 +4,7 @@ const storageKey = "frenchQuestProgressV03";
 const xpPerCorrect = 10;
 const waitlistUrl = "https://forms.gle/cgmTvvnV7hXWH4gQ8";
 const feedbackUrl = "#";
+const missionId = "coffee_shop";
 const skillPerformanceLabels = {
   vocabulary: "Vocabulary",
   situation: "Situation",
@@ -43,6 +44,7 @@ const state = {
   answers: [],
   activeQuestions: [],
   reviewMode: false,
+  attemptId: "",
   xp: 0,
   readiness: 0,
   missionLoaded: false,
@@ -96,6 +98,65 @@ function saveProgress() {
   localStorage.setItem(storageKey, JSON.stringify(state.progress));
 }
 
+function createAttemptId() {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
+  return `attempt_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function getAnalyticsUrl() {
+  return window.frenchQuestLinks?.analytics || "";
+}
+
+function trackAnalyticsEvent(eventName, payload = {}) {
+  const analyticsUrl = getAnalyticsUrl();
+  if (!analyticsUrl) return;
+
+  fetch(analyticsUrl, {
+    method: "POST",
+    mode: "no-cors",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: new URLSearchParams({
+      event_name: eventName,
+      attempt_id: payload.attemptId || "",
+      mission_id: payload.missionId || "",
+      score: payload.score ?? "",
+      total_questions: payload.totalQuestions ?? "",
+      duration_seconds: payload.durationSeconds ?? ""
+    })
+  }).catch(() => {});
+}
+
+function getAttemptIdForExternalAction(options = {}) {
+  if (options.attemptScope === "last-mission") {
+    return getValidAttempt(state.progress.lastMissionAttempt)?.attemptId || "";
+  }
+
+  if (options.attemptScope === "active") {
+    return state.progress.activeSession?.attemptId || "";
+  }
+
+  return "";
+}
+
+function trackExternalAction(type, options = {}) {
+  const eventName = type === "waitlist"
+    ? "early_access_clicked"
+    : type === "feedback"
+      ? "feedback_clicked"
+      : "";
+  if (!eventName) return;
+
+  const attemptId = getAttemptIdForExternalAction(options);
+  trackAnalyticsEvent(eventName, {
+    attemptId,
+    missionId: attemptId ? missionId : ""
+  });
+}
+
+window.trackFrenchQuestExternalAction = trackExternalAction;
+
 function isValidActiveSession(session) {
   if (!session || session.version !== 1) return false;
   if (session.missionId !== "coffee_shop" || session.mode !== "mission") return false;
@@ -124,10 +185,17 @@ function saveActiveSession() {
   if (state.reviewMode || !["question", "feedback"].includes(state.screen) || state.activeQuestions.length === 0) return;
 
   const now = new Date().toISOString();
+  const existingSession = state.progress.activeSession;
+  const attemptId = state.attemptId || existingSession?.attemptId || createAttemptId();
+  const isSameAttempt = existingSession?.attemptId === attemptId;
+  const existingAnalytics = isSameAttempt ? existingSession?.analytics : null;
+
+  state.attemptId = attemptId;
   state.progress.activeSession = {
     version: 1,
-    missionId: "coffee_shop",
+    missionId,
     mode: "mission",
+    attemptId,
     screen: state.screen,
     currentQuestion: state.currentQuestion,
     selectedAnswer: state.selectedAnswer,
@@ -135,7 +203,11 @@ function saveActiveSession() {
     answers: state.answers,
     activeQuestions: state.activeQuestions,
     xp: state.xp,
-    startedAt: state.progress.activeSession?.startedAt || now,
+    analytics: {
+      missionStartedSent: Boolean(existingAnalytics?.missionStartedSent),
+      missionCompletedSent: Boolean(existingAnalytics?.missionCompletedSent)
+    },
+    startedAt: isSameAttempt ? existingSession.startedAt || now : now,
     updatedAt: now
   };
   saveProgress();
@@ -162,10 +234,50 @@ function restoreActiveSession() {
   state.answers = session.answers;
   state.activeQuestions = session.activeQuestions;
   state.reviewMode = false;
+  state.attemptId = session.attemptId || createAttemptId();
   state.xp = Number(session.xp) || 0;
   state.missionStartTime = session.startedAt ? Date.parse(session.startedAt) : Date.now();
   state.questionStartTime = Date.now();
+  saveActiveSession();
   return true;
+}
+
+function updateActiveSessionAnalyticsFlag(flagName) {
+  const session = state.progress.activeSession;
+  if (!session || session.attemptId !== state.attemptId) return false;
+
+  session.analytics = {
+    missionStartedSent: Boolean(session.analytics?.missionStartedSent),
+    missionCompletedSent: Boolean(session.analytics?.missionCompletedSent),
+    [flagName]: true
+  };
+  saveProgress();
+  return true;
+}
+
+function trackMissionStartedOnce() {
+  const session = state.progress.activeSession;
+  if (!session || session.analytics?.missionStartedSent) return;
+
+  updateActiveSessionAnalyticsFlag("missionStartedSent");
+  trackAnalyticsEvent("mission_started", {
+    attemptId: session.attemptId,
+    missionId
+  });
+}
+
+function trackMissionCompletedOnce({ score, totalQuestions, durationSeconds }) {
+  const session = state.progress.activeSession;
+  if (!session || session.analytics?.missionCompletedSent) return;
+
+  updateActiveSessionAnalyticsFlag("missionCompletedSent");
+  trackAnalyticsEvent("mission_completed", {
+    attemptId: session.attemptId,
+    missionId,
+    score,
+    totalQuestions,
+    durationSeconds
+  });
 }
 
 function uniqueIds(ids) {
@@ -354,7 +466,9 @@ function getReviewQuestions() {
   return questions.filter((question) => ids.includes(question.id));
 }
 
-function handleExternalAction(type) {
+function handleExternalAction(type, options = {}) {
+  trackExternalAction(type, options);
+
   if (type === "waitlist" && waitlistUrl !== "#") {
     window.open(waitlistUrl, "_blank", "noopener,noreferrer");
     return;
@@ -374,11 +488,11 @@ function handleExternalAction(type) {
 
 function attachLaunchButtons() {
   document.querySelectorAll("[data-action='waitlist']").forEach((button) => {
-    button.addEventListener("click", () => handleExternalAction("waitlist"));
+    button.addEventListener("click", () => handleExternalAction("waitlist", { attemptScope: button.dataset.attemptScope || "" }));
   });
 
   document.querySelectorAll("[data-action='feedback']").forEach((button) => {
-    button.addEventListener("click", () => handleExternalAction("feedback"));
+    button.addEventListener("click", () => handleExternalAction("feedback", { attemptScope: button.dataset.attemptScope || "" }));
   });
 }
 
@@ -564,10 +678,12 @@ function startMission({ randomizeQuestions = false, randomizeOptions = false, re
   state.answers = [];
   state.xp = 0;
   state.reviewMode = reviewMode;
+  state.attemptId = reviewMode ? "" : createAttemptId();
   state.activeQuestions = prepareQuestionsForSession(questions, { randomizeQuestions, randomizeOptions });
   state.missionStartTime = Date.now();
   state.questionStartTime = Date.now();
   saveActiveSession();
+  trackMissionStartedOnce();
   render();
 }
 
@@ -582,6 +698,7 @@ function startReviewMode() {
   state.answers = [];
   state.xp = 0;
   state.reviewMode = true;
+  state.attemptId = "";
   state.activeQuestions = prepareQuestionsForSession(reviewQuestions, { randomizeQuestions: true, randomizeOptions: true });
   state.missionStartTime = Date.now();
   state.questionStartTime = Date.now();
@@ -760,6 +877,7 @@ function finishMission() {
   const averageTimeMs = activeQuestions.length ? totalTimeMs / activeQuestions.length : 0;
   const readinessGain = Math.round((score / activeQuestions.length) * 2);
   const skillPerformance = calculateSkillPerformance(state.answers);
+  const attemptId = state.reviewMode ? "" : state.progress.activeSession?.attemptId || state.attemptId || createAttemptId();
 
   state.progress.totalXp += state.xp;
   state.progress.readiness = Math.max(state.progress.readiness || 0, readinessGain);
@@ -809,12 +927,18 @@ function finishMission() {
     totalTimeMs,
     averageTimeMs,
     skillPerformance,
+    attemptId,
     completedAt: new Date().toISOString()
   };
 
   if (state.reviewMode) {
     state.progress.lastReviewAttempt = attemptSummary;
   } else {
+    trackMissionCompletedOnce({
+      score,
+      totalQuestions: activeQuestions.length,
+      durationSeconds: Math.round(totalTimeMs / 1000)
+    });
     state.progress.lastMissionAttempt = attemptSummary;
     state.progress.lastAttempt = attemptSummary;
     clearActiveSession();
@@ -888,8 +1012,8 @@ function renderComplete() {
         <p>加入搶先體驗名單，在超市、銀行與其他 TEF-style 任務上線時第一時間收到通知。</p>
         <p>你的 Email 只會用於 French Quest 的產品更新與新任務通知。</p>
         <div class="actions">
-          <button class="primary-btn" data-action="waitlist">加入搶先體驗名單</button>
-          <button class="secondary-btn" data-action="feedback">提供回饋</button>
+          <button class="primary-btn" data-action="waitlist" data-attempt-scope="last-mission">加入搶先體驗名單</button>
+          <button class="secondary-btn" data-action="feedback" data-attempt-scope="last-mission">提供回饋</button>
         </div>
       </div>
 

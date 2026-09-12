@@ -2,10 +2,13 @@
 
 window.frenchQuestLinks = {
   waitlist: "https://forms.gle/cgmTvvnV7hXWH4gQ8",
-  feedback: "https://forms.gle/qqwyvQ2wFDUZEk8bA"
+  feedback: "https://forms.gle/qqwyvQ2wFDUZEk8bA",
+  analytics: "https://script.google.com/macros/s/AKfycbwGXYxCCRQUnfCeMFe1ubxvOjvkwLbjyDktMsFyK-QYtHtzZaougHRTkJ68uJ0zdAK_Mw/exec"
 };
 
-handleExternalAction = function(type) {
+handleExternalAction = function(type, options = {}) {
+  window.trackFrenchQuestExternalAction?.(type, options);
+
   const url = window.frenchQuestLinks[type];
 
   if (url) {
