@@ -114,6 +114,7 @@ function trackAnalyticsEvent(eventName, payload = {}) {
   fetch(analyticsUrl, {
     method: "POST",
     mode: "no-cors",
+    keepalive: true,
     headers: {
       "Content-Type": "application/x-www-form-urlencoded"
     },
@@ -517,8 +518,8 @@ function renderHome() {
         <span>Timed practice</span>
       </div>
       <div class="actions launch-actions">
-        <button class="primary-btn" id="heroStartMission" ${state.missionLoaded ? "" : "disabled"}>Start your first mission</button>
-        <button class="secondary-btn" data-action="waitlist">Join Early Access</button>
+        <button class="primary-btn" id="heroStartMission" ${state.missionLoaded ? "" : "disabled"}>開始第一個任務</button>
+        <button class="secondary-btn" data-action="waitlist">加入搶先體驗</button>
       </div>
     </section>
 
@@ -575,23 +576,13 @@ function renderHome() {
         </div>
 
         <div class="actions">
-          <button class="primary-btn" id="startMission" ${state.missionLoaded ? "" : "disabled"}>Start Coffee Shop Mission</button>
+          <button class="primary-btn" id="startMission" ${state.missionLoaded ? "" : "disabled"}>開始 Coffee Shop 任務</button>
           ${hasCompletedCoffeeShop ? `<button class="secondary-btn" id="retakeMission">重新挑戰</button>` : ""}
           ${reviewCount ? `<button class="secondary-btn" id="reviewMission">複習 ${reviewCount} 題待加強</button>` : ""}
         </div>
       </div>
 
-      <div class="panel readiness-card">
-        <div class="readiness-top">
-          <div>
-            <p class="eyebrow">Practice Indicator</p>
-            <h2>TEF Practice Progress</h2>
-          </div>
-          <div class="readiness-number">${state.progress.readiness}%</div>
-        </div>
-        <div class="meter" aria-label="TEF Practice Progress ${state.progress.readiness}%">
-          <div class="meter-fill" style="--value: ${state.progress.readiness}%"></div>
-        </div>
+      <div class="panel progress-panel" style="display: flex; flex-direction: column; gap: 16px;">
         <div class="stat-card">
           <span class="stat-label">Total XP</span>
           <strong>${state.progress.totalXp || 0}</strong>
@@ -640,9 +631,11 @@ function renderHome() {
         <p class="eyebrow">Early Access</p>
         <h2>Get new missions when they launch.</h2>
         <p>Grocery Store and Banking missions are coming next. Join the early access list to get updates when new TEF practice missions are added.</p>
-        <p>Your email will only be used for French Quest updates. 有任何問題或想取消接收 French Quest 更新，歡迎來信 <a href="mailto:bonjour.frenchquest@gmail.com">bonjour.frenchquest@gmail.com</a></p>
+        <p>目前 Coffee Shop 開放免費體驗；更多任務與進階功能將陸續推出。</p>
+        <p>本站僅記錄匿名使用統計，不包含姓名或 Email，用來提升內容與使用體驗。</p>
+        <p>Your email will only be used for French Quest updates. 有任何問題，歡迎來信 <a href="mailto:bonjour.frenchquest@gmail.com">bonjour.frenchquest@gmail.com</a>。</p>
         <div class="actions">
-          <button class="primary-btn" data-action="waitlist">Join Early Access List</button>
+          <button class="primary-btn" data-action="waitlist">加入搶先體驗名單</button>
         </div>
       </div>
 
