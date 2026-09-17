@@ -507,7 +507,7 @@ function renderHome() {
   app.innerHTML = `
     <section class="panel launch-hero">
       <p class="eyebrow">Launch Version 1</p>
-      <h2>Practice TEF Canada French through real Canadian life missions.</h2>
+      <h2>Practice French for TEF Canada through real-life Canadian scenarios.</h2>
       <p class="launch-copy">為中文使用者設計的 TEF Canada 法文情境練習工具。</p>
       <p class="launch-copy">從零開始的 TEF Canada 情境入門；更高程度內容陸續推出。</p>
       <p class="launch-copy">French Quest helps TEF Canada learners practice everyday French for real situations: ordering coffee, shopping for groceries, and visiting a bank.</p>
@@ -564,7 +564,7 @@ function renderHome() {
             <div class="route-icon" aria-hidden="true">$</div>
             <div>
               <p class="route-name">Banking</p>
-              <p class="route-preview">Practice simple banking situations, account services, and service counter questions.</p>
+              <p class="route-preview">Practice French for everyday banking situations, account services, and questions at the service counter.</p>
               <ul class="route-preview-list">
                 <li>appointments</li>
                 <li>cards and accounts</li>
