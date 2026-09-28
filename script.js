@@ -1,6 +1,7 @@
 let questions = [];
 
 const storageKey = "frenchQuestProgressV03";
+const visitorIdStorageKey = "frenchQuestVisitorIdV1";
 const xpPerCorrect = 10;
 const waitlistUrl = "https://forms.gle/cgmTvvnV7hXWH4gQ8";
 const feedbackUrl = "#";
@@ -44,6 +45,7 @@ const state = {
   answers: [],
   activeQuestions: [],
   reviewMode: false,
+  missionMode: "normal",
   attemptId: "",
   xp: 0,
   readiness: 0,
@@ -55,6 +57,7 @@ const state = {
 };
 
 const app = document.getElementById("app");
+let pageViewTracked = false;
 
 function getFreshDefaultProgress() {
   return JSON.parse(JSON.stringify(defaultProgress));
@@ -103,6 +106,19 @@ function createAttemptId() {
   return `attempt_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
+function getVisitorId() {
+  try {
+    const savedVisitorId = localStorage.getItem(visitorIdStorageKey);
+    if (savedVisitorId) return savedVisitorId;
+
+    const visitorId = createAttemptId();
+    localStorage.setItem(visitorIdStorageKey, visitorId);
+    return visitorId;
+  } catch (error) {
+    return "";
+  }
+}
+
 function getAnalyticsUrl() {
   return window.frenchQuestLinks?.analytics || "";
 }
@@ -119,9 +135,15 @@ function trackAnalyticsEvent(eventName, payload = {}) {
       "Content-Type": "application/x-www-form-urlencoded"
     },
     body: new URLSearchParams({
+      timestamp: payload.timestamp || new Date().toISOString(),
       event_name: eventName,
+      visitor_id: getVisitorId(),
       attempt_id: payload.attemptId || "",
       mission_id: payload.missionId || "",
+      page: payload.page || "",
+      question_id: payload.questionId || "",
+      question_position: payload.questionPosition ?? "",
+      mission_mode: payload.missionMode || "",
       score: payload.score ?? "",
       total_questions: payload.totalQuestions ?? "",
       duration_seconds: payload.durationSeconds ?? ""
@@ -157,6 +179,14 @@ function trackExternalAction(type, options = {}) {
 }
 
 window.trackFrenchQuestExternalAction = trackExternalAction;
+
+function trackPageViewOnce() {
+  if (pageViewTracked) return;
+  pageViewTracked = true;
+  trackAnalyticsEvent("page_view", {
+    page: "home"
+  });
+}
 
 function isValidActiveSession(session) {
   if (!session || session.version !== 1) return false;
@@ -204,9 +234,13 @@ function saveActiveSession() {
     answers: state.answers,
     activeQuestions: state.activeQuestions,
     xp: state.xp,
+    missionMode: state.missionMode,
     analytics: {
       missionStartedSent: Boolean(existingAnalytics?.missionStartedSent),
-      missionCompletedSent: Boolean(existingAnalytics?.missionCompletedSent)
+      missionCompletedSent: Boolean(existingAnalytics?.missionCompletedSent),
+      questionAnsweredKeys: Array.isArray(existingAnalytics?.questionAnsweredKeys)
+        ? existingAnalytics.questionAnsweredKeys
+        : []
     },
     startedAt: isSameAttempt ? existingSession.startedAt || now : now,
     updatedAt: now
@@ -235,6 +269,7 @@ function restoreActiveSession() {
   state.answers = session.answers;
   state.activeQuestions = session.activeQuestions;
   state.reviewMode = false;
+  state.missionMode = session.missionMode || "normal";
   state.attemptId = session.attemptId || createAttemptId();
   state.xp = Number(session.xp) || 0;
   state.missionStartTime = session.startedAt ? Date.parse(session.startedAt) : Date.now();
@@ -248,6 +283,7 @@ function updateActiveSessionAnalyticsFlag(flagName) {
   if (!session || session.attemptId !== state.attemptId) return false;
 
   session.analytics = {
+    ...session.analytics,
     missionStartedSent: Boolean(session.analytics?.missionStartedSent),
     missionCompletedSent: Boolean(session.analytics?.missionCompletedSent),
     [flagName]: true
@@ -263,7 +299,8 @@ function trackMissionStartedOnce() {
   updateActiveSessionAnalyticsFlag("missionStartedSent");
   trackAnalyticsEvent("mission_started", {
     attemptId: session.attemptId,
-    missionId
+    missionId,
+    missionMode: session.missionMode || "normal"
   });
 }
 
@@ -275,9 +312,43 @@ function trackMissionCompletedOnce({ score, totalQuestions, durationSeconds }) {
   trackAnalyticsEvent("mission_completed", {
     attemptId: session.attemptId,
     missionId,
+    missionMode: session.missionMode || "normal",
     score,
     totalQuestions,
     durationSeconds
+  });
+}
+
+function getCurrentMissionMode() {
+  if (state.reviewMode) return "review";
+  return state.missionMode || "normal";
+}
+
+function trackQuestionAnsweredOnce(question, questionPosition) {
+  const questionAnsweredKey = `${questionPosition}:${question.id}`;
+  const session = state.progress.activeSession;
+
+  if (!state.reviewMode && session?.attemptId === state.attemptId) {
+    const answeredKeys = Array.isArray(session.analytics?.questionAnsweredKeys)
+      ? session.analytics.questionAnsweredKeys
+      : [];
+    if (answeredKeys.includes(questionAnsweredKey)) return;
+
+    session.analytics = {
+      ...session.analytics,
+      missionStartedSent: Boolean(session.analytics?.missionStartedSent),
+      missionCompletedSent: Boolean(session.analytics?.missionCompletedSent),
+      questionAnsweredKeys: [...answeredKeys, questionAnsweredKey]
+    };
+    saveProgress();
+  }
+
+  trackAnalyticsEvent("question_answered", {
+    attemptId: state.attemptId || "",
+    missionId,
+    questionId: question.id,
+    questionPosition,
+    missionMode: getCurrentMissionMode()
   });
 }
 
@@ -647,6 +718,7 @@ function renderHome() {
     </section>
   `;
 
+  trackPageViewOnce();
   attachLaunchButtons();
 
   if (state.missionLoaded) {
@@ -671,6 +743,7 @@ function startMission({ randomizeQuestions = false, randomizeOptions = false, re
   state.answers = [];
   state.xp = 0;
   state.reviewMode = reviewMode;
+  state.missionMode = reviewMode ? "review" : (randomizeQuestions ? "retake" : "normal");
   state.attemptId = reviewMode ? "" : createAttemptId();
   state.activeQuestions = prepareQuestionsForSession(questions, { randomizeQuestions, randomizeOptions });
   state.missionStartTime = Date.now();
@@ -691,6 +764,7 @@ function startReviewMode() {
   state.answers = [];
   state.xp = 0;
   state.reviewMode = true;
+  state.missionMode = "review";
   state.attemptId = "";
   state.activeQuestions = prepareQuestionsForSession(reviewQuestions, { randomizeQuestions: true, randomizeOptions: true });
   state.missionStartTime = Date.now();
@@ -776,6 +850,7 @@ function submitAnswer() {
   if (isCorrect) state.xp += xpPerCorrect;
   state.screen = "feedback";
   saveActiveSession();
+  trackQuestionAnsweredOnce(question, state.currentQuestion + 1);
   render();
 }
 
