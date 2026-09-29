@@ -1,32 +1,11 @@
 let questions = [];
 
-const missionConfigs = {
-  coffee_shop: {
-    id: "coffee_shop",
-    title: "Coffee Shop",
-    dataPath: "./data/coffee_shop.json",
-    storageKey: "frenchQuestProgressV03",
-    missionNumber: "Mission 1",
-    situationLabel: "咖啡店"
-  },
-  grocery_store: {
-    id: "grocery_store",
-    title: "Grocery Store",
-    dataPath: "./data/grocery_store.json",
-    storageKey: "frenchQuestProgressV03_grocery_store",
-    missionNumber: "Mission 2",
-    situationLabel: "超市"
-  }
-};
-
-const currentMissionStorageKey = "frenchQuestCurrentMissionV1";
+const storageKey = "frenchQuestProgressV03";
 const visitorIdStorageKey = "frenchQuestVisitorIdV1";
-let missionId = getInitialMissionId();
-let missionConfig = missionConfigs[missionId];
-let storageKey = missionConfig.storageKey;
 const xpPerCorrect = 10;
 const waitlistUrl = "https://forms.gle/cgmTvvnV7hXWH4gQ8";
 const feedbackUrl = "#";
+const missionId = "coffee_shop";
 const skillPerformanceLabels = {
   vocabulary: "Vocabulary",
   situation: "Situation",
@@ -84,33 +63,9 @@ function getFreshDefaultProgress() {
   return JSON.parse(JSON.stringify(defaultProgress));
 }
 
-function getInitialMissionId() {
+function loadProgress() {
   try {
-    const savedMissionId = localStorage.getItem(currentMissionStorageKey);
-    return missionConfigs[savedMissionId] ? savedMissionId : "coffee_shop";
-  } catch (error) {
-    return "coffee_shop";
-  }
-}
-
-function setCurrentMission(nextMissionId) {
-  const nextConfig = missionConfigs[nextMissionId] || missionConfigs.coffee_shop;
-  missionId = nextConfig.id;
-  missionConfig = nextConfig;
-  storageKey = nextConfig.storageKey;
-  try {
-    localStorage.setItem(currentMissionStorageKey, missionId);
-  } catch (error) {}
-  questions = [];
-  state.progress = loadProgress();
-  state.readiness = state.progress.readiness || 0;
-  state.missionLoaded = false;
-  state.errorMessage = "";
-}
-
-function loadProgressFromStorage(key) {
-  try {
-    const saved = localStorage.getItem(key);
+    const saved = localStorage.getItem(storageKey);
     if (!saved) return getFreshDefaultProgress();
 
     const parsed = JSON.parse(saved);
@@ -140,15 +95,6 @@ function loadProgressFromStorage(key) {
     console.error("Progress loading failed:", error);
     return getFreshDefaultProgress();
   }
-}
-
-function loadProgress() {
-  return loadProgressFromStorage(storageKey);
-}
-
-function loadProgressForMission(progressMissionId) {
-  const config = missionConfigs[progressMissionId] || missionConfigs.coffee_shop;
-  return loadProgressFromStorage(config.storageKey);
 }
 
 function saveProgress() {
@@ -244,7 +190,7 @@ function trackPageViewOnce() {
 
 function isValidActiveSession(session) {
   if (!session || session.version !== 1) return false;
-  if (session.missionId !== missionId || session.mode !== "mission") return false;
+  if (session.missionId !== "coffee_shop" || session.mode !== "mission") return false;
   if (!["question", "feedback"].includes(session.screen)) return false;
   if (!Array.isArray(session.activeQuestions) || session.activeQuestions.length === 0) return false;
   if (!Array.isArray(session.answers)) return false;
@@ -414,11 +360,9 @@ function getValidAttempt(attempt) {
   return attempt && Number(attempt.total) > 0 ? attempt : null;
 }
 
-async function loadMissionData(nextMissionId = missionId, { renderAfterLoad = true } = {}) {
-  setCurrentMission(nextMissionId);
-
+async function loadMissionData() {
   try {
-    const response = await fetch(missionConfig.dataPath);
+    const response = await fetch("./data/coffee_shop.json");
     if (!response.ok) throw new Error("Mission data request failed.");
 
     const data = await response.json();
@@ -430,15 +374,13 @@ async function loadMissionData(nextMissionId = missionId, { renderAfterLoad = tr
     state.missionLoaded = true;
     state.readiness = state.progress.readiness || 0;
     state.screen = restoreActiveSession() ? state.screen : "home";
-    if (renderAfterLoad) render();
-    return true;
+    render();
   } catch (error) {
     console.error("Mission loading failed:", error);
     state.missionLoaded = false;
     state.errorMessage = error instanceof Error ? error.message : String(error);
     state.screen = "error";
-    if (renderAfterLoad) render();
-    return false;
+    render();
   }
 }
 
@@ -455,7 +397,7 @@ function renderLoading() {
   app.innerHTML = `
     <section class="panel mission-card">
       <p class="eyebrow">Loading Mission</p>
-      <h2>${missionConfig.title}</h2>
+      <h2>Coffee Shop</h2>
       <p>Preparing your TEF Canada practice mission.</p>
     </section>
   `;
@@ -544,22 +486,6 @@ function shuffleArray(items) {
   return [...items].sort(() => Math.random() - 0.5);
 }
 
-function shuffleQuestionsWithinSections(items) {
-  const sections = [];
-
-  items.forEach((question) => {
-    const previousSection = sections[sections.length - 1];
-    if (!previousSection || previousSection.part !== question.part) {
-      sections.push({ part: question.part, questions: [question] });
-      return;
-    }
-
-    previousSection.questions.push(question);
-  });
-
-  return sections.flatMap((section) => shuffleArray(section.questions));
-}
-
 function prepareQuestionForSession(question, randomizeOptions = false) {
   if (!randomizeOptions) {
     return {
@@ -579,9 +505,8 @@ function prepareQuestionForSession(question, randomizeOptions = false) {
   };
 }
 
-function prepareQuestionsForSession(sourceQuestions, { randomizeQuestions = false, randomizeOptions = false, randomizeWithinSections = false } = {}) {
+function prepareQuestionsForSession(sourceQuestions, { randomizeQuestions = false, randomizeOptions = false } = {}) {
   const prepared = sourceQuestions.map((question) => prepareQuestionForSession(question, randomizeOptions));
-  if (randomizeQuestions && randomizeWithinSections) return shuffleQuestionsWithinSections(prepared);
   return randomizeQuestions ? shuffleArray(prepared) : prepared;
 }
 
@@ -648,11 +573,7 @@ function renderHome() {
   const lastReviewAttempt = getValidAttempt(state.progress.lastReviewAttempt);
   const skillTiles = getSkillPerformanceTiles(lastMissionAttempt?.skillPerformance);
   const reviewCount = getReviewQuestions().length;
-  const coffeeProgress = loadProgressForMission("coffee_shop");
-  const groceryProgress = loadProgressForMission("grocery_store");
-  const hasCompletedCurrentMission = state.progress.completedMissions.includes(missionId);
-  const hasCompletedCoffeeShop = coffeeProgress.completedMissions.includes("coffee_shop");
-  const hasCompletedGroceryStore = groceryProgress.completedMissions.includes("grocery_store");
+  const hasCompletedCoffeeShop = state.progress.completedMissions.includes("coffee_shop");
 
   app.innerHTML = `
     <section class="panel launch-hero">
@@ -696,7 +617,7 @@ function renderHome() {
             <span class="route-state">${hasCompletedCoffeeShop ? "Completed" : "Ready"}</span>
           </div>
           <div class="route-arrow" aria-hidden="true">|</div>
-          <div class="route-stop ready">
+          <div class="route-stop">
             <div class="route-icon" aria-hidden="true">BAG</div>
             <div>
               <p class="route-name">Grocery Store</p>
@@ -707,7 +628,7 @@ function renderHome() {
                 <li>reusable bags</li>
               </ul>
             </div>
-            <span class="route-state">${hasCompletedGroceryStore ? "Completed" : "Ready"}</span>
+            <span class="route-state">Coming Soon</span>
           </div>
           <div class="route-arrow" aria-hidden="true">|</div>
           <div class="route-stop">
@@ -727,9 +648,8 @@ function renderHome() {
 
         <div class="actions">
           <button class="primary-btn" id="startMission" ${state.missionLoaded ? "" : "disabled"}>開始 Coffee Shop 任務</button>
-          <button class="secondary-btn" id="startGroceryMission">開始 Grocery Store 任務</button>
-          ${hasCompletedCurrentMission ? `<button class="secondary-btn" id="retakeMission">重新挑戰 ${missionConfig.title}</button>` : ""}
-          ${reviewCount ? `<button class="secondary-btn" id="reviewMission">複習 ${reviewCount} 題 ${missionConfig.title} 待加強</button>` : ""}
+          ${hasCompletedCoffeeShop ? `<button class="secondary-btn" id="retakeMission">重新挑戰</button>` : ""}
+          ${reviewCount ? `<button class="secondary-btn" id="reviewMission">複習 ${reviewCount} 題待加強</button>` : ""}
         </div>
       </div>
 
@@ -740,7 +660,7 @@ function renderHome() {
           <p class="next-step">Accumulated practice reward.</p>
         </div>
         ${skillTiles.length ? `
-          <p class="next-step">Skill performance from your latest full ${missionConfig.title} mission.</p>
+          <p class="next-step">Skill performance from your latest full mission.</p>
           <div class="skill-grid">
             ${skillTiles.map((tile) => `
               <div class="skill-tile">
@@ -750,7 +670,7 @@ function renderHome() {
             `).join("")}
           </div>
         ` : `
-          <p class="next-step">Complete a full ${missionConfig.title} mission to see skill performance.</p>
+          <p class="next-step">Complete a full mission to see skill performance.</p>
         `}
         ${lastMissionAttempt ? `
           <div class="stat-card">
@@ -759,7 +679,7 @@ function renderHome() {
             <p class="next-step">${formatDateTime(lastMissionAttempt.completedAt)} · Wrong: ${lastMissionAttempt.wrongCount} · Guessed: ${lastMissionAttempt.guessedCount} · Time: ${formatDuration(lastMissionAttempt.totalTimeMs)}</p>
           </div>
         ` : `
-          <p class="next-step">Start a full ${missionConfig.title} mission to build your TEF profile.</p>
+          <p class="next-step">Start your first mission to build your TEF profile.</p>
         `}
         ${lastReviewAttempt ? `
           <div class="stat-card">
@@ -781,8 +701,8 @@ function renderHome() {
       <div class="panel info-panel">
         <p class="eyebrow">Early Access</p>
         <h2>Get new missions when they launch.</h2>
-        <p>Banking and more TEF-style missions are coming next. Join the early access list to get updates when new practice missions are added.</p>
-        <p>目前 Coffee Shop 與 Grocery Store 開放免費體驗；更多任務與進階功能將陸續推出。</p>
+        <p>Grocery Store and Banking missions are coming next. Join the early access list to get updates when new TEF practice missions are added.</p>
+        <p>目前 Coffee Shop 開放免費體驗；更多任務與進階功能將陸續推出。</p>
         <p>本站僅記錄匿名使用統計，不包含姓名或 Email，用來提升內容與使用體驗。</p>
         <p>Your email will only be used for French Quest updates. 有任何問題，歡迎來信 <a href="mailto:bonjour.frenchquest@gmail.com">bonjour.frenchquest@gmail.com</a>。</p>
         <div class="actions">
@@ -802,9 +722,8 @@ function renderHome() {
   attachLaunchButtons();
 
   if (state.missionLoaded) {
-    document.getElementById("heroStartMission").addEventListener("click", () => startMissionForMission("coffee_shop", { randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
-    document.getElementById("startMission").addEventListener("click", () => startMissionForMission("coffee_shop", { randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
-    document.getElementById("startGroceryMission").addEventListener("click", () => startMissionForMission("grocery_store", { randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
+    document.getElementById("heroStartMission").addEventListener("click", () => startMission({ randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
+    document.getElementById("startMission").addEventListener("click", () => startMission({ randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
 
     const retakeButton = document.getElementById("retakeMission");
     if (retakeButton) retakeButton.addEventListener("click", () => startMission({ randomizeQuestions: true, randomizeOptions: true, reviewMode: false }));
@@ -812,22 +731,6 @@ function renderHome() {
     const reviewButton = document.getElementById("reviewMission");
     if (reviewButton) reviewButton.addEventListener("click", startReviewMode);
   }
-}
-
-async function startMissionForMission(nextMissionId, options = {}) {
-  if (missionId !== nextMissionId || !state.missionLoaded || questions.length === 0) {
-    setCurrentMission(nextMissionId);
-    state.screen = "loading";
-    render();
-
-    const loaded = await loadMissionData(nextMissionId, { renderAfterLoad: false });
-    if (!loaded) {
-      render();
-      return;
-    }
-  }
-
-  startMission(options);
 }
 
 function startMission({ randomizeQuestions = false, randomizeOptions = false, reviewMode = false } = {}) {
@@ -842,11 +745,7 @@ function startMission({ randomizeQuestions = false, randomizeOptions = false, re
   state.reviewMode = reviewMode;
   state.missionMode = reviewMode ? "review" : (randomizeQuestions ? "retake" : "normal");
   state.attemptId = reviewMode ? "" : createAttemptId();
-  state.activeQuestions = prepareQuestionsForSession(questions, {
-    randomizeQuestions,
-    randomizeOptions,
-    randomizeWithinSections: missionId === "grocery_store" && !reviewMode && randomizeQuestions
-  });
+  state.activeQuestions = prepareQuestionsForSession(questions, { randomizeQuestions, randomizeOptions });
   state.missionStartTime = Date.now();
   state.questionStartTime = Date.now();
   saveActiveSession();
@@ -882,8 +781,8 @@ function renderQuestion() {
     <section class="panel mission-card">
       <div class="mission-head">
         <div>
-          <p class="eyebrow">${state.reviewMode ? "Review Mode" : missionConfig.missionNumber}</p>
-          <h2>${missionConfig.title}</h2>
+          <p class="eyebrow">${state.reviewMode ? "Review Mode" : "Mission 1"}</p>
+          <h2>Coffee Shop</h2>
         </div>
         <span class="pill">XP ${state.xp}</span>
       </div>
@@ -968,7 +867,7 @@ function renderFeedback() {
     <section class="panel mission-card">
       <div class="mission-head">
         <div>
-          <p class="eyebrow">${state.reviewMode ? "Review Mode" : `${missionConfig.missionNumber}: ${missionConfig.title}`}</p>
+          <p class="eyebrow">${state.reviewMode ? "Review Mode" : "Mission 1: Coffee Shop"}</p>
           <h2>${answer.isCorrect ? "Correct" : "Incorrect"}</h2>
           <div class="review-line">
             <p><strong>Question:</strong> ${question.question}</p>
@@ -1082,12 +981,12 @@ function finishMission() {
     ]);
   }
 
-  if (!state.reviewMode && !state.progress.completedMissions.includes(missionId)) {
-    state.progress.completedMissions.push(missionId);
+  if (!state.reviewMode && !state.progress.completedMissions.includes("coffee_shop")) {
+    state.progress.completedMissions.push("coffee_shop");
   }
 
   const attemptSummary = {
-    mission: state.reviewMode ? `${missionConfig.title} Review` : missionConfig.title,
+    mission: state.reviewMode ? "Coffee Shop Review" : "Coffee Shop",
     score,
     total: activeQuestions.length,
     xp: state.xp,
@@ -1127,18 +1026,15 @@ function renderComplete() {
   const averageTimeMs = activeQuestions.length ? totalTimeMs / activeQuestions.length : 0;
   const skillTiles = getSkillPerformanceTiles(calculateSkillPerformance(state.answers), completeSkillPerformanceLabels);
   const reviewCount = getReviewQuestions().length;
-  const nextMissionText = missionId === "coffee_shop"
-    ? "下一個任務：Grocery Store 已可開始。"
-    : "下一個任務：Banking — coming soon.";
   const nextStepText = reviewCount === 0
-    ? `太好了！這次任務的待加強題目都已經複習完成。${nextMissionText}`
+    ? "太好了！這次任務的待加強題目都已經複習完成。下一個任務：Grocery Store — coming soon."
     : "下一步：複習答錯與不確定的題目，強化你的 TEF 情境理解。";
 
   app.innerHTML = `
     <section class="panel complete-card">
       <p class="eyebrow">${state.reviewMode ? "複習完成" : "任務完成"}</p>
       <h2>${state.reviewMode ? "複習完成" : "任務完成"}</h2>
-      <p>你剛完成了一次加拿大${missionConfig.situationLabel}情境的 TEF-style 法文練習。</p>
+      <p>你剛完成了一次加拿大咖啡店情境的 TEF-style 法文練習。</p>
 
       <div class="score-row">
         <div class="stat-card">
@@ -1181,7 +1077,7 @@ function renderComplete() {
       <div class="panel info-panel early-access-card">
         <p class="eyebrow">搶先體驗</p>
         <h2>想解鎖更多生活情境任務嗎？</h2>
-        <p>加入搶先體驗名單，在銀行與其他 TEF-style 任務上線時第一時間收到通知。</p>
+        <p>加入搶先體驗名單，在超市、銀行與其他 TEF-style 任務上線時第一時間收到通知。</p>
         <p>你的 Email 只會用於 French Quest 的產品更新與新任務通知。</p>
         <div class="actions">
           <button class="primary-btn" data-action="waitlist" data-attempt-scope="last-mission">加入搶先體驗名單</button>
