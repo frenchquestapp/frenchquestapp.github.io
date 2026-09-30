@@ -1,0 +1,502 @@
+[
+  {
+    "id": "GS001",
+    "mission": "grocery_store",
+    "part": "Part 1: Quick Confidence Warm-up",
+    "question_type": "vocabulary",
+    "question": "Vous cherchez du lait.\nUn employé vous dit : « C’est dans le rayon des produits laitiers. »\n\nWhere should you go?",
+    "options": [
+      "To the bakery",
+      "To the entrance",
+      "To the dairy section",
+      "To the checkout"
+    ],
+    "answer": "C",
+    "vocabulary": "rayon = 商品區／區域；produits laitiers = 乳製品",
+    "pattern": "dans le rayon + de / du / de la / des + 商品類別",
+    "tef_tip": "遇到不熟悉的字，不一定要逐字翻譯。先看商店情境和後面的商品類別，常常可以推斷它是在說位置。",
+    "skill": "vocabulary",
+    "difficulty": "A1",
+    "status": "published"
+  },
+  {
+    "id": "GS002",
+    "mission": "grocery_store",
+    "part": "Part 1: Quick Confidence Warm-up",
+    "question_type": "vocabulary",
+    "question": "À la caisse, l’employé demande : « Voulez-vous un sac ? »\n\nWhat is the employee offering?",
+    "options": [
+      "A bag",
+      "A receipt",
+      "A loyalty card",
+      "A discount"
+    ],
+    "answer": "A",
+    "vocabulary": "sac = 袋子",
+    "pattern": "Voulez-vous + un / une / des + 名詞 ?",
+    "tef_tip": "看到 Voulez-vous… ?，先判斷這是在確認「要／不要」，再抓後面的名詞。",
+    "skill": "vocabulary",
+    "difficulty": "A1",
+    "status": "published"
+  },
+  {
+    "id": "GS003",
+    "mission": "grocery_store",
+    "part": "Part 1: Quick Confidence Warm-up",
+    "question_type": "vocabulary",
+    "question": "You see this sign:\n« Caisse 2 fermée. »\n\nWhat does it mean?",
+    "options": [
+      "The entrance is closed.",
+      "Checkout 2 is open.",
+      "The store is closed.",
+      "Checkout 2 is closed."
+    ],
+    "answer": "D",
+    "vocabulary": "caisse = 結帳櫃檯／收銀台；fermée = 關閉／暫停使用；ouverte = 開放／可使用",
+    "pattern": "Caisse + 號碼 + fermée = 第 X 號結帳櫃檯關閉",
+    "tef_tip": "注意名詞和狀態。fermée 說的是 caisse，不是整間店。",
+    "skill": "situation",
+    "difficulty": "A1",
+    "status": "published"
+  },
+  {
+    "id": "GS004",
+    "mission": "grocery_store",
+    "part": "Part 1: Quick Confidence Warm-up",
+    "question_type": "vocabulary",
+    "question": "You see this sign:\n« Rabais de 20 % sur les fruits aujourd’hui. »\n\nWhat is discounted today?",
+    "options": [
+      "Reusable bags",
+      "Fruit",
+      "Dairy products",
+      "Bread"
+    ],
+    "answer": "B",
+    "vocabulary": "rabais = 折扣",
+    "pattern": "rabais de + % + sur + 商品 = 折扣套用在某商品上",
+    "tef_tip": "在促銷資訊裡，看到 sur + 商品，要判斷「折扣是套用在哪個商品上」。不要只看到 % 就停下來。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "published"
+  },
+  {
+    "id": "GS005",
+    "mission": "grocery_store",
+    "part": "Part 1: Quick Confidence Warm-up",
+    "question_type": "vocabulary",
+    "question": "A promotion says:\n« 10 % de rabais avec la carte de fidélité. »\n\nWhat do customers need to receive the discount?",
+    "options": [
+      "A coupon",
+      "A reusable bag",
+      "A receipt",
+      "A loyalty card"
+    ],
+    "answer": "D",
+    "vocabulary": "carte de fidélité = 會員卡",
+    "pattern": "rabais avec + 條件 = 符合／使用某條件可享折扣",
+    "tef_tip": "這題重點不是只認出 carte de fidélité，而是理解優惠成立的條件。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "published"
+  },
+  {
+    "id": "GS006",
+    "mission": "grocery_store",
+    "part": "Part 2: Store Signs & Notices",
+    "question_type": "sign_understanding",
+    "question": "Le lait 2 % est temporairement en rupture de stock.\nLe lait 1 % est disponible au rayon 4.\n\nWhat can the customer buy instead?",
+    "options": [
+      "Le lait 1 % au rayon 4",
+      "Le lait 2 % à la caisse",
+      "Quatre bouteilles de lait 2 %",
+      "Le lait en promotion"
+    ],
+    "answer": "A",
+    "vocabulary": "en rupture de stock = 缺貨／暫時沒有庫存；disponible = 有貨／可取得",
+    "pattern": "être en rupture de stock = 缺貨；être disponible = 有貨／可取得",
+    "tef_tip": "同一公告出現兩個商品或兩種狀態時，先分別標記「有貨／缺貨／位置」，再回答題目，不要只抓第一句。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "published"
+  },
+  {
+    "id": "GS007",
+    "mission": "grocery_store",
+    "part": "Part 2: Store Signs & Notices",
+    "question_type": "sign_understanding",
+    "question": "Les caisses 1 et 2 sont fermées.\nVeuillez utiliser les caisses libre-service.\n\nWhere should customers pay?",
+    "options": [
+      "À la caisse 1",
+      "Au service à la clientèle",
+      "Aux caisses libre-service",
+      "À la caisse 2"
+    ],
+    "answer": "C",
+    "vocabulary": "caisse libre-service = 自助結帳",
+    "pattern": "Veuillez utiliser + 地點／服務 = 請使用某地點／服務",
+    "tef_tip": "公告常會先說「哪裡不能用」，再提供替代方式。遇到這種兩句結構，要把第二句當成行動指示。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "published"
+  },
+  {
+    "id": "GS008",
+    "mission": "grocery_store",
+    "part": "Part 2: Store Signs & Notices",
+    "question_type": "sign_understanding",
+    "question": "Jus d’orange : 2,99 $.\nLimite de 2 articles par client.\n\nA customer wants to buy four bottles. What should they understand?",
+    "options": [
+      "Il peut acheter quatre bouteilles.",
+      "Il peut acheter seulement deux bouteilles.",
+      "Il doit acheter deux jus différents.",
+      "Il doit avoir une carte de fidélité."
+    ],
+    "answer": "B",
+    "vocabulary": "limite = 限制／上限；par client = 每位顧客",
+    "pattern": "Limite de + 數量 + articles par client = 每位顧客限購 X 件",
+    "tef_tip": "看到數字時，不要只看價格。先確認這個數字是在說「價格、數量、時間」還是「每人限制」。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "published"
+  },
+  {
+    "id": "GS009",
+    "mission": "grocery_store",
+    "part": "Part 2: Store Signs & Notices",
+    "question_type": "sign_understanding",
+    "question": "Heures habituelles : de 8 h à 21 h.\nAujourd’hui, fermeture exceptionnelle à 18 h.\n\nLe magasin est-il ouvert à 19 h aujourd’hui ?",
+    "options": [
+      "Oui, jusqu’à 21 h.",
+      "Oui, mais seulement en libre-service.",
+      "Non, il ferme à 18 h aujourd’hui.",
+      "Non, il ouvre à 21 h."
+    ],
+    "answer": "C",
+    "vocabulary": "heures habituelles = 平常營業時間；fermeture exceptionnelle = 特殊／臨時關門",
+    "pattern": "fermeture exceptionnelle à + 時間 = 例外／臨時在某時間關門",
+    "tef_tip": "看到 habituel 和 aujourd’hui 同時出現時，要先找今天有沒有例外，不要只抓平常營業時間。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "published"
+  },
+  {
+    "id": "GS010",
+    "mission": "grocery_store",
+    "part": "Part 2: Store Signs & Notices",
+    "question_type": "sign_understanding",
+    "question": "N’oubliez pas vos sacs réutilisables.\nDes sacs sont aussi disponibles à la caisse.\n\nVous avez oublié votre sac. Que pouvez-vous faire ?",
+    "options": [
+      "Payer seulement en espèces.",
+      "Attendre à l’entrée.",
+      "Retourner demain.",
+      "Prendre un sac à la caisse."
+    ],
+    "answer": "D",
+    "vocabulary": "sac réutilisable = 可重複使用的袋子／環保袋；disponible = 有提供／可取得",
+    "pattern": "être disponible à + 地點 = 在某處有提供／可以取得",
+    "tef_tip": "題目有時不會直接重複原句。先找公告提供的「替代方案」，再對照情境作答。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "published"
+  },
+  {
+    "id": "GS011",
+    "mission": "grocery_store",
+    "part": "Part 2: Store Signs & Notices",
+    "question_type": "sign_understanding",
+    "question": "Retours acceptés dans les 14 jours avec reçu.\n\nQuel client peut retourner son article ?",
+    "options": [
+      "Un client avec reçu après 16 jours.",
+      "Un client sans reçu après 8 jours.",
+      "Un client qui rapporte l’article 10 jours après l’achat avec son reçu.",
+      "Un client sans reçu après 14 jours."
+    ],
+    "answer": "C",
+    "vocabulary": "retour = 退貨；reçu = 收據",
+    "pattern": "dans les + 時間 = 在……之內\navec + 名詞 = 有／附……\nsans + 名詞 = 沒有／不附……\n\ndans les 14 jours = 14 天內\navec reçu = 有收據\nsans reçu = 沒有收據",
+    "tef_tip": "條件題要先找出所有必要條件。這題要同時確認退貨時間是否在 14 天內，以及顧客是否有收據。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "published"
+  },
+  {
+    "id": "GS012",
+    "mission": "grocery_store",
+    "part": "Part 2: Store Signs & Notices",
+    "question_type": "sign_understanding",
+    "question": "Prix membre : 3,99 $.\nPrix courant : 4,99 $.\nJulie n’est pas membre.\n\nCombien paie-t-elle ?",
+    "options": [
+      "1,00 $",
+      "4,99 $",
+      "3,99 $",
+      "Elle ne peut pas acheter le produit."
+    ],
+    "answer": "B",
+    "vocabulary": "prix membre = 會員價；prix courant = 一般售價",
+    "pattern": "ne pas être membre = 不是會員",
+    "tef_tip": "看到會員價／一般價時，先確認人物是不是會員，再找對應的價格。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "published"
+  },
+  {
+    "id": "GS013",
+    "mission": "grocery_store",
+    "part": "Part 2: Store Signs & Notices",
+    "question_type": "sign_understanding",
+    "question": "Entrée principale fermée pour travaux.\nVeuillez utiliser l’entrée près du stationnement.\n\nPar où les clients doivent-ils entrer ?",
+    "options": [
+      "Par l’entrée principale.",
+      "Par la caisse.",
+      "Par l’entrée près du stationnement.",
+      "Par la sortie de secours."
+    ],
+    "answer": "C",
+    "vocabulary": "travaux = 施工／工程；stationnement = 停車場",
+    "pattern": "fermé(e) pour + 原因 = 因為……而關閉；Veuillez utiliser + 地點 = 請使用／改走某地點",
+    "tef_tip": "看到「原本位置 + 關閉」時，不要停在第一句；下一句通常會告訴你替代路線或下一步。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "published"
+  },
+  {
+    "id": "GS014",
+    "mission": "grocery_store",
+    "part": "Part 3: Staff-Customer Interaction",
+    "question_type": "best_response",
+    "question": "Employé : « Vous cherchez quelque chose ? »\n\nQuelle est la meilleure réponse ?",
+    "options": [
+      "Oui, je cherche du lait.",
+      "Non, c’est 3,99 $.",
+      "La caisse ferme à 18 h.",
+      "J’ai une carte de fidélité."
+    ],
+    "answer": "A",
+    "vocabulary": "chercher = 找／尋找",
+    "pattern": "Je cherche + 商品 = 我在找……",
+    "tef_tip": "看到 Vous cherchez quelque chose ?，先判斷店員是在問你需不需要協助；答案要說明你正在找什麼。",
+    "skill": "expression",
+    "difficulty": "A2",
+    "status": "published"
+  },
+  {
+    "id": "GS015",
+    "mission": "grocery_store",
+    "part": "Part 3: Staff-Customer Interaction",
+    "question_type": "best_response",
+    "question": "Employé : « Vous préférez les pommes rouges ou vertes ? »\n\nQuelle est la meilleure réponse ?",
+    "options": [
+      "À la caisse, s’il vous plaît.",
+      "Les vertes, s’il vous plaît.",
+      "Non, je n’en ai pas.",
+      "Le magasin est ouvert."
+    ],
+    "answer": "B",
+    "vocabulary": "préférer = 比較喜歡／偏好；rouge / vert = 紅色／綠色",
+    "pattern": "Vous préférez A ou B ? = 你比較喜歡 A 還是 B？",
+    "tef_tip": "看到 A ou B 時，先確認對方是在要求你選擇其中一個。最自然的回答通常直接選 A 或 B，不需要回答其他資訊。",
+    "skill": "expression",
+    "difficulty": "A2",
+    "status": "published"
+  },
+  {
+    "id": "GS016",
+    "mission": "grocery_store",
+    "part": "Part 3: Staff-Customer Interaction",
+    "question_type": "best_response",
+    "question": "Employé : « Vous avez une carte de fidélité ? »\nVous n’en avez pas.\n\nQue répondez-vous ?",
+    "options": [
+      "Deux pains, merci.",
+      "Oui, c’est ouvert.",
+      "À la caisse 4.",
+      "Non, je n’en ai pas."
+    ],
+    "answer": "D",
+    "vocabulary": "carte de fidélité = 會員卡",
+    "pattern": "Je n’en ai pas. = 我沒有。這裡的 en 可以代替前面已經提到的東西。",
+    "tef_tip": "對話題常不會把同一個名詞一直重複。看到 en 時，要往前找它代替的是什麼。",
+    "skill": "expression",
+    "difficulty": "A2",
+    "status": "published"
+  },
+  {
+    "id": "GS017",
+    "mission": "grocery_store",
+    "part": "Part 3: Staff-Customer Interaction",
+    "question_type": "best_response",
+    "question": "Client : « Excusez-moi, où sont les produits surgelés ? »\n\nQuelle réponse de l’employé est la plus logique ?",
+    "options": [
+      "Oui, j’en prends deux.",
+      "Au fond du magasin, à gauche.",
+      "Je paie par carte.",
+      "C’est 5,99 $."
+    ],
+    "answer": "B",
+    "vocabulary": "produits surgelés = 冷凍食品；au fond = 在裡面／最裡面",
+    "pattern": "Où est / Où sont + ... ? = ……在哪裡？",
+    "tef_tip": "先判斷問句在索取哪一類資訊。où 問的是位置，所以答案應該提供方向或地點。",
+    "skill": "expression",
+    "difficulty": "A2",
+    "status": "published"
+  },
+  {
+    "id": "GS018",
+    "mission": "grocery_store",
+    "part": "Part 3: Staff-Customer Interaction",
+    "question_type": "best_response",
+    "question": "Client : « Est-ce qu’il reste des fraises ? »\nEmployé : « Désolé, il n’y en a plus aujourd’hui. »\n\nQue comprend le client ?",
+    "options": [
+      "Le produit est gratuit aujourd’hui.",
+      "Le produit est dans un autre rayon.",
+      "Le produit n’est plus disponible aujourd’hui.",
+      "Le produit est réservé aux membres."
+    ],
+    "answer": "C",
+    "vocabulary": "il reste = 還剩下／還有",
+    "pattern": "Il n’y en a plus. = 已經沒有了／沒有剩下了。",
+    "tef_tip": "短對話裡常會用 en 代替前面已經提過的東西。遇到這種代名詞時，往前找它指的是哪個商品或事物。",
+    "skill": "expression",
+    "difficulty": "A2",
+    "status": "published"
+  },
+  {
+    "id": "GS019",
+    "mission": "grocery_store",
+    "part": "Part 3: Staff-Customer Interaction",
+    "question_type": "best_response",
+    "question": "Employé : « C’est tout ? »\n\nQuelle est la meilleure réponse si vous n’avez rien d’autre à acheter ?",
+    "options": [
+      "Oui, c’est tout, merci.",
+      "Je cherche le rayon 5.",
+      "Non, le magasin ferme.",
+      "C’est en rabais."
+    ],
+    "answer": "A",
+    "vocabulary": "C’est tout ? = 就這些嗎？／沒有其他了嗎？",
+    "pattern": "C’est tout, merci. = 就這些，謝謝。",
+    "tef_tip": "看到 C’est tout ?，先判斷店員是在確認「還需要其他東西嗎？」再選符合收尾情境的回答。",
+    "skill": "expression",
+    "difficulty": "A2",
+    "status": "published"
+  },
+  {
+    "id": "GS020",
+    "mission": "grocery_store",
+    "part": "Part 4: Mini Reading Documents",
+    "question_type": "mini_reading",
+    "question": "PROMOTIONS DE LA SEMAINE\nPommes : 2,49 $/lb\nFraises : 3,99 $ le panier\nYogourt : 2 pour 6 $\nOffres valables jusqu’à dimanche.\n\nSophie veut acheter deux yogourts samedi. Combien paie-t-elle ?",
+    "options": [
+      "2,49 $",
+      "3,99 $",
+      "6,00 $",
+      "12,00 $"
+    ],
+    "answer": "C",
+    "vocabulary": "offre valable = 優惠有效；panier = 一盒／一籃（水果包裝）",
+    "pattern": "2 pour 6 $ = 兩個 6 元",
+    "tef_tip": "小型廣告通常同時有商品、價格和期限。先確認題目問的是哪個商品，再找與它相關的價格資訊，不需要把整張廣告全部翻譯。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "published"
+  },
+  {
+    "id": "GS021",
+    "mission": "grocery_store",
+    "part": "Part 4: Mini Reading Documents",
+    "question_type": "mini_reading",
+    "question": "Céréales\n2 pour 5 $\nou 2,99 $ l’unité\n\nMarc achète une seule boîte. Combien paie-t-il ?",
+    "options": [
+      "2,99 $",
+      "5,98 $",
+      "2,50 $",
+      "5,00 $"
+    ],
+    "answer": "A",
+    "vocabulary": "l’unité = 單件／一個的價格",
+    "pattern": "X pour Y $ = X 件共 Y 元；Y $ l’unité = 每件 Y 元",
+    "tef_tip": "促銷價和單件價同時出現時，先確認題目中顧客要買的數量，再對照適用的價格。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "published"
+  },
+  {
+    "id": "GS022",
+    "mission": "grocery_store",
+    "part": "Part 4: Mini Reading Documents",
+    "question_type": "mini_reading",
+    "question": "COMMANDE EN LIGNE Nº 384\nRamassage au comptoir du service à la clientèle avant 19 h.\nVeuillez présenter votre numéro de commande.\n\nJulie arrive à 18 h 30 avec son numéro de commande. Où doit-elle aller ?",
+    "options": [
+      "À l’entrée principale.",
+      "Au rayon des produits laitiers.",
+      "À la caisse libre-service.",
+      "Au service à la clientèle."
+    ],
+    "answer": "D",
+    "vocabulary": "ramassage = 取貨；comptoir = 櫃檯",
+    "pattern": "avant + 時間 = 在某個時間之前",
+    "tef_tip": "通知裡可能同時包含時間、地點和需要攜帶的資訊。題目問什麼，就只鎖定相關資訊，不要被其他細節干擾。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "published"
+  },
+  {
+    "id": "GS023",
+    "mission": "grocery_store",
+    "part": "Part 4: Mini Reading Documents",
+    "question_type": "mini_reading",
+    "question": "Heures d’ouverture\nMagasin : 8 h – 21 h\nService à la clientèle : 9 h – 18 h\nPharmacie : 9 h – 20 h\n\nIl est 19 h. Quel service est déjà fermé ?",
+    "options": [
+      "La pharmacie.",
+      "Le service à la clientèle.",
+      "Tous les services.",
+      "Le magasin."
+    ],
+    "answer": "B",
+    "vocabulary": "heures d’ouverture = 營業／開放時間",
+    "pattern": "Il est + 時間 = 現在是……點",
+    "tef_tip": "表格式資訊不要從頭逐字讀。先找題目指定的時間，再逐列比較各服務的開放時間。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "published"
+  },
+  {
+    "id": "GS024",
+    "mission": "grocery_store",
+    "part": "Part 4: Mini Reading Documents",
+    "question_type": "mini_reading",
+    "question": "POLITIQUE DE RETOUR\nRetours acceptés dans les 14 jours avec reçu.\nLes produits réfrigérés ne peuvent pas être retournés.\n\nQuel article peut être retourné ?",
+    "options": [
+      "Une boîte de céréales achetée il y a 10 jours avec reçu.",
+      "Un yogourt acheté hier avec reçu.",
+      "Une boîte de céréales achetée il y a 5 jours sans reçu.",
+      "Une boîte de céréales achetée il y a 20 jours avec reçu."
+    ],
+    "answer": "A",
+    "vocabulary": "produit réfrigéré = 冷藏商品",
+    "pattern": "ne peut pas être + 動作 = 不能被……；ne peut pas être retourné = 不能退貨",
+    "tef_tip": "閱讀退貨規定時，先找「可以退貨的條件」，再確認商品是否屬於不能退貨的例外。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "published"
+  },
+  {
+    "id": "GS025",
+    "mission": "grocery_store",
+    "part": "Part 4: Mini Reading Documents",
+    "question_type": "mini_reading",
+    "question": "AVIS DE RAPPEL\nYogourt nature – format 750 g\nLot : 2458\nMeilleur avant : 5 octobre\n\nNe pas consommer ce produit.\nRapportez-le au magasin pour un remboursement.\n\nQue doit faire un client qui possède ce produit ?",
+    "options": [
+      "Le garder au réfrigérateur.",
+      "Acheter un deuxième yogourt.",
+      "Le consommer avant le 5 octobre.",
+      "Le rapporter au magasin."
+    ],
+    "answer": "D",
+    "vocabulary": "avis de rappel = 產品召回通知；remboursement = 退款",
+    "pattern": "Ne pas + 動作 = 不要／禁止做……；Rapportez... = 請帶回……",
+    "tef_tip": "遇到公告型文件，先找最重要的行動指示。商品名稱、批號和日期是辨認資訊；真正決定答案的是公告要求顧客做什麼。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "published"
+  }
+]
