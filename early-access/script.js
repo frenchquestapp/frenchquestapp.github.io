@@ -35,9 +35,11 @@ const shouldAutoStartMission = runtimeParams.get("start") === "1";
 const requestedMissionIsPlayable = missionConfigs[requestedMissionId] && publicMissionIds.includes(requestedMissionId);
 const missionId = requestedMissionIsPlayable ? requestedMissionId : "coffee_shop";
 const missionConfig = missionConfigs[missionId];
-const storageKey = missionId === "coffee_shop"
+const progressStoragePrefix = runtimeConfig.progressStoragePrefix || "";
+const baseStorageKey = missionId === "coffee_shop"
   ? "frenchQuestProgressV03"
   : `frenchQuestProgressV03_${missionId}`;
+const storageKey = `${progressStoragePrefix}${baseStorageKey}`;
 const visitorIdStorageKey = "frenchQuestVisitorIdV1";
 const xpPerCorrect = 10;
 const waitlistUrl = "https://forms.gle/cgmTvvnV7hXWH4gQ8";
@@ -1272,4 +1274,5 @@ function renderComplete() {
 
 render();
 loadMissionData();
+
 
