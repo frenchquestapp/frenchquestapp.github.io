@@ -1,11 +1,50 @@
 let questions = [];
 
-const storageKey = "frenchQuestProgressV03";
+const missionConfigs = {
+  coffee_shop: {
+    id: "coffee_shop",
+    title: "Coffee Shop",
+    dataPath: "./data/coffee_shop.json",
+    sequenceLabel: "Mission 1",
+    scenarioZh: "咖啡店",
+    nextMissionId: "grocery_store",
+    nextMissionLabel: "Grocery Store 已上線，可以繼續挑戰。",
+    retakeRandomization: "global"
+  },
+  grocery_store: {
+    id: "grocery_store",
+    title: "Grocery Store",
+    dataPath: "./data/grocery_store.json",
+    sequenceLabel: "Mission 2",
+    scenarioZh: "超市",
+    nextMissionId: "banking",
+    nextMissionLabel: "Banking — coming soon.",
+    retakeRandomization: "section"
+  }
+};
+
+const runtimeParams = new URLSearchParams(window.location.search);
+const runtimeConfig = window.frenchQuestRuntime || {};
+const runtimeEnvironment = runtimeConfig.environment || runtimeParams.get("environment") || runtimeParams.get("env") || "production";
+const isReviewEnvironment = Boolean(runtimeConfig.reviewMode) || ["staging", "review", "integrated-staging"].includes(runtimeEnvironment);
+const publicMissionIds = Array.isArray(runtimeConfig.publicMissions)
+  ? runtimeConfig.publicMissions
+  : (isReviewEnvironment ? ["coffee_shop", "grocery_store"] : ["coffee_shop"]);
+const requestedMissionId = runtimeParams.get("mission");
+const shouldAutoStartMission = runtimeParams.get("start") === "1";
+const requestedMissionIsPlayable = missionConfigs[requestedMissionId] && publicMissionIds.includes(requestedMissionId);
+const missionId = requestedMissionIsPlayable ? requestedMissionId : "coffee_shop";
+const missionConfig = missionConfigs[missionId];
+const progressStoragePrefix = runtimeConfig.progressStoragePrefix || "";
+const baseStorageKey = missionId === "coffee_shop"
+  ? "frenchQuestProgressV03"
+  : `frenchQuestProgressV03_${missionId}`;
+const storageKey = `${progressStoragePrefix}${baseStorageKey}`;
+maybeMigrateEarlyAccessGroceryProgress();
 const visitorIdStorageKey = "frenchQuestVisitorIdV1";
 const xpPerCorrect = 10;
 const waitlistUrl = "https://forms.gle/cgmTvvnV7hXWH4gQ8";
 const feedbackUrl = "#";
-const missionId = "coffee_shop";
 const skillPerformanceLabels = {
   vocabulary: "Vocabulary",
   situation: "Situation",
@@ -61,6 +100,25 @@ let pageViewTracked = false;
 
 function getFreshDefaultProgress() {
   return JSON.parse(JSON.stringify(defaultProgress));
+}
+
+function maybeMigrateEarlyAccessGroceryProgress() {
+  if (!runtimeConfig.migrateEarlyAccessGroceryProgress) return;
+  if (missionId !== "grocery_store") return;
+  if (progressStoragePrefix) return;
+
+  try {
+    if (localStorage.getItem(storageKey)) return;
+
+    const earlyAccessStorageKey = `earlyAccess_${baseStorageKey}`;
+    const earlyAccessProgress = localStorage.getItem(earlyAccessStorageKey);
+    if (!earlyAccessProgress) return;
+
+    JSON.parse(earlyAccessProgress);
+    localStorage.setItem(storageKey, earlyAccessProgress);
+  } catch (error) {
+    console.warn("Early Access Grocery progress migration skipped:", error);
+  }
 }
 
 function loadProgress() {
@@ -120,6 +178,7 @@ function getVisitorId() {
 }
 
 function getAnalyticsUrl() {
+  if (isReviewEnvironment || runtimeConfig.disableAnalytics) return "";
   return window.frenchQuestLinks?.analytics || "";
 }
 
@@ -140,7 +199,7 @@ function trackAnalyticsEvent(eventName, payload = {}) {
       visitor_id: getVisitorId(),
       attempt_id: payload.attemptId || "",
       mission_id: payload.missionId || "",
-      page: payload.page || "",
+      page: payload.page || runtimeConfig.analyticsCohort || "",
       question_id: payload.questionId || "",
       question_position: payload.questionPosition ?? "",
       mission_mode: payload.missionMode || "",
@@ -184,13 +243,22 @@ function trackPageViewOnce() {
   if (pageViewTracked) return;
   pageViewTracked = true;
   trackAnalyticsEvent("page_view", {
-    page: "home"
+    page: runtimeConfig.analyticsPage || "home"
   });
+}
+
+function removeStartParamFromUrl() {
+  if (!runtimeParams.has("start")) return;
+  const params = new URLSearchParams(window.location.search);
+  params.delete("start");
+  const query = params.toString();
+  const nextUrl = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
+  window.history.replaceState({}, "", nextUrl);
 }
 
 function isValidActiveSession(session) {
   if (!session || session.version !== 1) return false;
-  if (session.missionId !== "coffee_shop" || session.mode !== "mission") return false;
+  if (session.missionId !== missionId || session.mode !== "mission") return false;
   if (!["question", "feedback"].includes(session.screen)) return false;
   if (!Array.isArray(session.activeQuestions) || session.activeQuestions.length === 0) return false;
   if (!Array.isArray(session.answers)) return false;
@@ -362,7 +430,7 @@ function getValidAttempt(attempt) {
 
 async function loadMissionData() {
   try {
-    const response = await fetch("./data/coffee_shop.json");
+    const response = await fetch(missionConfig.dataPath);
     if (!response.ok) throw new Error("Mission data request failed.");
 
     const data = await response.json();
@@ -373,7 +441,16 @@ async function loadMissionData() {
     questions = data;
     state.missionLoaded = true;
     state.readiness = state.progress.readiness || 0;
-    state.screen = restoreActiveSession() ? state.screen : "home";
+    const restored = restoreActiveSession();
+
+    if (shouldAutoStartMission) removeStartParamFromUrl();
+
+    if (!restored && shouldAutoStartMission && isMissionPlayable(missionId)) {
+      startMission({ randomizeQuestions: false, randomizeOptions: false, reviewMode: false });
+      return;
+    }
+
+    state.screen = restored ? state.screen : "home";
     render();
   } catch (error) {
     console.error("Mission loading failed:", error);
@@ -396,8 +473,8 @@ function render() {
 function renderLoading() {
   app.innerHTML = `
     <section class="panel mission-card">
-      <p class="eyebrow">Loading Mission</p>
-      <h2>Coffee Shop</h2>
+      <p class="eyebrow">${isReviewEnvironment ? "Review Staging" : "Loading Mission"}</p>
+      <h2>${missionConfig.title}</h2>
       <p>Preparing your TEF Canada practice mission.</p>
     </section>
   `;
@@ -483,7 +560,28 @@ function getCorrectIndex(question) {
 }
 
 function shuffleArray(items) {
-  return [...items].sort(() => Math.random() - 0.5);
+  const shuffled = [...items];
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+  return shuffled;
+}
+
+function shuffleQuestionsWithinSections(items) {
+  const sections = [];
+
+  items.forEach((question) => {
+    const previousSection = sections[sections.length - 1];
+    if (!previousSection || previousSection.part !== question.part) {
+      sections.push({ part: question.part, questions: [question] });
+      return;
+    }
+
+    previousSection.questions.push(question);
+  });
+
+  return sections.flatMap((section) => shuffleArray(section.questions));
 }
 
 function prepareQuestionForSession(question, randomizeOptions = false) {
@@ -505,8 +603,9 @@ function prepareQuestionForSession(question, randomizeOptions = false) {
   };
 }
 
-function prepareQuestionsForSession(sourceQuestions, { randomizeQuestions = false, randomizeOptions = false } = {}) {
+function prepareQuestionsForSession(sourceQuestions, { randomizeQuestions = false, randomizeOptions = false, randomizeWithinSections = false } = {}) {
   const prepared = sourceQuestions.map((question) => prepareQuestionForSession(question, randomizeOptions));
+  if (randomizeQuestions && randomizeWithinSections) return shuffleQuestionsWithinSections(prepared);
   return randomizeQuestions ? shuffleArray(prepared) : prepared;
 }
 
@@ -536,6 +635,12 @@ function getReviewQuestions() {
   ]);
 
   return questions.filter((question) => ids.includes(question.id));
+}
+
+function getResumeLabel() {
+  const session = state.progress.activeSession;
+  if (!isValidActiveSession(session)) return "";
+  return `繼續 ${missionConfig.title}（第 ${session.currentQuestion + 1} 題）`;
 }
 
 function handleExternalAction(type, options = {}) {
@@ -568,16 +673,57 @@ function attachLaunchButtons() {
   });
 }
 
+function getMissionUrl(targetMissionId, options = {}) {
+  const params = new URLSearchParams(window.location.search);
+  params.set("mission", targetMissionId);
+  if (options.start) params.set("start", "1");
+  if (!options.start) params.delete("start");
+  if (isReviewEnvironment && !params.get("environment")) params.set("environment", runtimeEnvironment);
+  return `${window.location.pathname}?${params.toString()}`;
+}
+
+function isMissionPlayable(targetMissionId) {
+  return publicMissionIds.includes(targetMissionId);
+}
+
+function startOrOpenMission(targetMissionId, options = {}) {
+  if (targetMissionId === missionId) {
+    if (!options.forceNew && restoreActiveSession()) {
+      render();
+      return;
+    }
+
+    startMission(options);
+    return;
+  }
+
+  window.location.href = getMissionUrl(targetMissionId, { start: true });
+}
+
+function renderStagingNotice() {
+  if (!isReviewEnvironment) return "";
+
+  return `
+    <section class="panel info-panel">
+      <p class="eyebrow">Review Staging</p>
+      <h2>Integrated mission review site.</h2>
+      <p>這是 Coffee Shop + Grocery Store 的整合測試站，與 production 分離，不會送出正式 analytics。</p>
+    </section>
+  `;
+}
+
 function renderHome() {
   const lastMissionAttempt = getValidAttempt(state.progress.lastMissionAttempt);
   const lastReviewAttempt = getValidAttempt(state.progress.lastReviewAttempt);
   const skillTiles = getSkillPerformanceTiles(lastMissionAttempt?.skillPerformance);
   const reviewCount = getReviewQuestions().length;
-  const hasCompletedCoffeeShop = state.progress.completedMissions.includes("coffee_shop");
+  const isGroceryPlayable = isMissionPlayable("grocery_store");
+  const currentMissionLabel = missionId === "grocery_store" ? "Grocery Store" : "Coffee Shop";
+  const resumeLabel = getResumeLabel();
 
   app.innerHTML = `
     <section class="panel launch-hero">
-      <p class="eyebrow">Launch Version 1</p>
+      <p class="eyebrow">${isReviewEnvironment ? "Review Staging" : "Launch Version 1"}</p>
       <h2>Practice French for TEF Canada through real-life Canadian scenarios.</h2>
       <p class="launch-copy">為中文使用者設計的 TEF Canada 法文情境練習工具。</p>
       <p class="launch-copy">從零開始的 TEF Canada 情境入門；更高程度內容陸續推出。</p>
@@ -614,10 +760,10 @@ function renderHome() {
           <div class="route-stop ready">
             <div class="route-icon" aria-hidden="true">CUP</div>
             <p class="route-name">Coffee Shop Mission</p>
-            <span class="route-state">${hasCompletedCoffeeShop ? "Completed" : "Ready"}</span>
+            <span class="route-state">Ready</span>
           </div>
           <div class="route-arrow" aria-hidden="true">|</div>
-          <div class="route-stop">
+          <div class="route-stop ${isGroceryPlayable ? "ready" : ""}">
             <div class="route-icon" aria-hidden="true">BAG</div>
             <div>
               <p class="route-name">Grocery Store</p>
@@ -628,7 +774,7 @@ function renderHome() {
                 <li>reusable bags</li>
               </ul>
             </div>
-            <span class="route-state">Coming Soon</span>
+            <span class="route-state">${isGroceryPlayable ? "Ready" : "Coming Soon"}</span>
           </div>
           <div class="route-arrow" aria-hidden="true">|</div>
           <div class="route-stop">
@@ -647,8 +793,11 @@ function renderHome() {
         </div>
 
         <div class="actions">
-          <button class="primary-btn" id="startMission" ${state.missionLoaded ? "" : "disabled"}>開始 Coffee Shop 任務</button>
-          ${hasCompletedCoffeeShop ? `<button class="secondary-btn" id="retakeMission">重新挑戰</button>` : ""}
+          ${missionId === "coffee_shop" && resumeLabel
+            ? `<button class="primary-btn" id="continueMission">${resumeLabel}</button>`
+            : `<button class="primary-btn" id="startCoffeeMission">開始 Coffee Shop 任務</button>`}
+          ${isGroceryPlayable ? `<button class="primary-btn" id="startGroceryMission">開始 Grocery Store 任務</button>` : ""}
+          ${lastMissionAttempt ? `<button class="secondary-btn" id="retakeMission">重新挑戰 ${currentMissionLabel}</button>` : ""}
           ${reviewCount ? `<button class="secondary-btn" id="reviewMission">複習 ${reviewCount} 題待加強</button>` : ""}
         </div>
       </div>
@@ -676,7 +825,7 @@ function renderHome() {
           <div class="stat-card">
             <span class="stat-label">Last Mission Attempt</span>
             <strong>${lastMissionAttempt.score} / ${lastMissionAttempt.total}</strong>
-            <p class="next-step">${formatDateTime(lastMissionAttempt.completedAt)} · Wrong: ${lastMissionAttempt.wrongCount} · Guessed: ${lastMissionAttempt.guessedCount} · Time: ${formatDuration(lastMissionAttempt.totalTimeMs)}</p>
+            <p class="next-step">${currentMissionLabel} · ${formatDateTime(lastMissionAttempt.completedAt)} · Wrong: ${lastMissionAttempt.wrongCount} · Guessed: ${lastMissionAttempt.guessedCount} · Time: ${formatDuration(lastMissionAttempt.totalTimeMs)}</p>
           </div>
         ` : `
           <p class="next-step">Start your first mission to build your TEF profile.</p>
@@ -692,6 +841,7 @@ function renderHome() {
     </section>
 
     <section class="screen launch-grid">
+      ${renderStagingNotice()}
       <div class="panel info-panel">
         <p class="eyebrow">About French Quest</p>
         <h2>Built for practical TEF Canada preparation.</h2>
@@ -701,8 +851,8 @@ function renderHome() {
       <div class="panel info-panel">
         <p class="eyebrow">Early Access</p>
         <h2>Get new missions when they launch.</h2>
-        <p>Grocery Store and Banking missions are coming next. Join the early access list to get updates when new TEF practice missions are added.</p>
-        <p>目前 Coffee Shop 開放免費體驗；更多任務與進階功能將陸續推出。</p>
+        <p>Grocery Store is now available. Banking is coming next. Join the early access list to get updates when new TEF practice missions are added.</p>
+        <p>目前 Coffee Shop 與 Grocery Store 開放免費體驗；更多任務與進階功能將陸續推出。</p>
         <p>本站僅記錄匿名使用統計，不包含姓名或 Email，用來提升內容與使用體驗。</p>
         <p>Your email will only be used for French Quest updates. 有任何問題，歡迎來信 <a href="mailto:bonjour.frenchquest@gmail.com">bonjour.frenchquest@gmail.com</a>。</p>
         <div class="actions">
@@ -722,8 +872,15 @@ function renderHome() {
   attachLaunchButtons();
 
   if (state.missionLoaded) {
-    document.getElementById("heroStartMission").addEventListener("click", () => startMission({ randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
-    document.getElementById("startMission").addEventListener("click", () => startMission({ randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
+    document.getElementById("heroStartMission").addEventListener("click", () => startOrOpenMission(missionId, { randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
+    const continueButton = document.getElementById("continueMission");
+    if (continueButton) continueButton.addEventListener("click", () => startOrOpenMission(missionId, { randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
+
+    const coffeeButton = document.getElementById("startCoffeeMission");
+    if (coffeeButton) coffeeButton.addEventListener("click", () => startOrOpenMission("coffee_shop", { randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
+
+    const groceryButton = document.getElementById("startGroceryMission");
+    if (groceryButton) groceryButton.addEventListener("click", () => startOrOpenMission("grocery_store", { randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
 
     const retakeButton = document.getElementById("retakeMission");
     if (retakeButton) retakeButton.addEventListener("click", () => startMission({ randomizeQuestions: true, randomizeOptions: true, reviewMode: false }));
@@ -745,7 +902,11 @@ function startMission({ randomizeQuestions = false, randomizeOptions = false, re
   state.reviewMode = reviewMode;
   state.missionMode = reviewMode ? "review" : (randomizeQuestions ? "retake" : "normal");
   state.attemptId = reviewMode ? "" : createAttemptId();
-  state.activeQuestions = prepareQuestionsForSession(questions, { randomizeQuestions, randomizeOptions });
+  state.activeQuestions = prepareQuestionsForSession(questions, {
+    randomizeQuestions,
+    randomizeOptions,
+    randomizeWithinSections: !reviewMode && randomizeQuestions && missionConfig.retakeRandomization === "section"
+  });
   state.missionStartTime = Date.now();
   state.questionStartTime = Date.now();
   saveActiveSession();
@@ -781,8 +942,8 @@ function renderQuestion() {
     <section class="panel mission-card">
       <div class="mission-head">
         <div>
-          <p class="eyebrow">${state.reviewMode ? "Review Mode" : "Mission 1"}</p>
-          <h2>Coffee Shop</h2>
+          <p class="eyebrow">${state.reviewMode ? "Review Mode" : missionConfig.sequenceLabel}</p>
+          <h2>${missionConfig.title}</h2>
         </div>
         <span class="pill">XP ${state.xp}</span>
       </div>
@@ -807,6 +968,7 @@ function renderQuestion() {
       </div>
 
       <div class="actions">
+        <button class="secondary-btn" id="missionMap" type="button">回任務地圖</button>
         <button class="secondary-btn" id="guessToggle" type="button">${state.guessedCurrent ? "Marked as guessed" : "I guessed this"}</button>
         <button class="primary-btn" id="submitAnswer" ${state.selectedAnswer === null ? "disabled" : ""}>Submit</button>
       </div>
@@ -827,6 +989,7 @@ function renderQuestion() {
     renderQuestion();
   });
 
+  document.getElementById("missionMap").addEventListener("click", returnToJourneyMap);
   document.getElementById("submitAnswer").addEventListener("click", submitAnswer);
 }
 
@@ -867,7 +1030,7 @@ function renderFeedback() {
     <section class="panel mission-card">
       <div class="mission-head">
         <div>
-          <p class="eyebrow">${state.reviewMode ? "Review Mode" : "Mission 1: Coffee Shop"}</p>
+          <p class="eyebrow">${state.reviewMode ? "Review Mode" : `${missionConfig.sequenceLabel}: ${missionConfig.title}`}</p>
           <h2>${answer.isCorrect ? "Correct" : "Incorrect"}</h2>
           <div class="review-line">
             <p><strong>Question:</strong> ${question.question}</p>
@@ -895,25 +1058,37 @@ function renderFeedback() {
       <div class="learning-notes">
         <div class="note">
           <span>Vocabulary</span>
-          ${question.vocabulary}
+          <div class="note-content">${question.vocabulary}</div>
         </div>
         <div class="note">
           <span>Pattern</span>
-          ${question.pattern}
+          <div class="note-content">${question.pattern}</div>
         </div>
         <div class="note">
           <span>TEF Tip</span>
-          ${question.tef_tip || ""}
+          <div class="note-content">${question.tef_tip || ""}</div>
         </div>
       </div>
 
       <div class="actions">
+        <button class="secondary-btn" id="missionMap" type="button">回任務地圖</button>
         <button class="primary-btn" id="nextQuestion">Next Question</button>
       </div>
     </section>
   `;
 
+  document.getElementById("missionMap").addEventListener("click", returnToJourneyMap);
   document.getElementById("nextQuestion").addEventListener("click", nextQuestion);
+}
+
+function returnToJourneyMap() {
+  saveActiveSession();
+  state.screen = "home";
+  state.activeQuestions = [];
+  state.reviewMode = false;
+  state.questionStartTime = null;
+  state.missionStartTime = null;
+  render();
 }
 
 function nextQuestion() {
@@ -960,14 +1135,15 @@ function finishMission() {
   });
 
   if (state.reviewMode) {
+    const guessedAnswerIds = guessedAnswers.map((answer) => answer.questionId);
     state.progress.wrongQuestionIds = uniqueIds([
       ...state.progress.wrongQuestionIds.filter((questionId) => !correctAnswerIds.includes(questionId)),
       ...wrongAnswers.map((answer) => answer.questionId)
     ]);
 
     state.progress.guessedQuestionIds = uniqueIds([
-      ...state.progress.guessedQuestionIds.filter((questionId) => !correctAnswerIds.includes(questionId)),
-      ...guessedAnswers.filter((answer) => !answer.isCorrect).map((answer) => answer.questionId)
+      ...state.progress.guessedQuestionIds.filter((questionId) => !correctAnswerIds.includes(questionId) || guessedAnswerIds.includes(questionId)),
+      ...guessedAnswerIds
     ]);
   } else {
     state.progress.wrongQuestionIds = uniqueIds([
@@ -981,12 +1157,12 @@ function finishMission() {
     ]);
   }
 
-  if (!state.reviewMode && !state.progress.completedMissions.includes("coffee_shop")) {
-    state.progress.completedMissions.push("coffee_shop");
+  if (!state.reviewMode && !state.progress.completedMissions.includes(missionId)) {
+    state.progress.completedMissions.push(missionId);
   }
 
   const attemptSummary = {
-    mission: state.reviewMode ? "Coffee Shop Review" : "Coffee Shop",
+    mission: state.reviewMode ? `${missionConfig.title} Review` : missionConfig.title,
     score,
     total: activeQuestions.length,
     xp: state.xp,
@@ -1026,15 +1202,18 @@ function renderComplete() {
   const averageTimeMs = activeQuestions.length ? totalTimeMs / activeQuestions.length : 0;
   const skillTiles = getSkillPerformanceTiles(calculateSkillPerformance(state.answers), completeSkillPerformanceLabels);
   const reviewCount = getReviewQuestions().length;
+  const nextMissionId = missionConfig.nextMissionId;
+  const canStartNextMission = Boolean(nextMissionId && missionConfigs[nextMissionId] && isMissionPlayable(nextMissionId));
   const nextStepText = reviewCount === 0
-    ? "太好了！這次任務的待加強題目都已經複習完成。下一個任務：Grocery Store — coming soon."
+    ? `太好了！這次任務的待加強題目都已經複習完成。下一個任務：${missionConfig.nextMissionLabel}`
     : "下一步：複習答錯與不確定的題目，強化你的 TEF 情境理解。";
+  const showCompletionCtas = !isReviewEnvironment;
 
   app.innerHTML = `
     <section class="panel complete-card">
       <p class="eyebrow">${state.reviewMode ? "複習完成" : "任務完成"}</p>
       <h2>${state.reviewMode ? "複習完成" : "任務完成"}</h2>
-      <p>你剛完成了一次加拿大咖啡店情境的 TEF-style 法文練習。</p>
+      <p>你剛完成了一次加拿大${missionConfig.scenarioZh}情境的 TEF-style 法文練習。</p>
 
       <div class="score-row">
         <div class="stat-card">
@@ -1074,19 +1253,22 @@ function renderComplete() {
 
       <p class="next-step">${nextStepText}</p>
 
-      <div class="panel info-panel early-access-card">
-        <p class="eyebrow">搶先體驗</p>
-        <h2>想解鎖更多生活情境任務嗎？</h2>
-        <p>加入搶先體驗名單，在超市、銀行與其他 TEF-style 任務上線時第一時間收到通知。</p>
-        <p>你的 Email 只會用於 French Quest 的產品更新與新任務通知。</p>
-        <div class="actions">
-          <button class="primary-btn" data-action="waitlist" data-attempt-scope="last-mission">加入搶先體驗名單</button>
-          <button class="secondary-btn" data-action="feedback" data-attempt-scope="last-mission">提供回饋</button>
+      ${showCompletionCtas ? `
+        <div class="panel info-panel early-access-card">
+          <p class="eyebrow">搶先體驗</p>
+          <h2>想解鎖更多生活情境任務嗎？</h2>
+          <p>Grocery Store 已經上線。加入搶先體驗名單，在 Banking 與其他 TEF-style 任務推出時第一時間收到通知。</p>
+          <p>你的 Email 只會用於 French Quest 的產品更新與新任務通知。</p>
+          <div class="actions">
+            <button class="primary-btn" data-action="waitlist" data-attempt-scope="last-mission">加入搶先體驗名單</button>
+            <button class="secondary-btn" data-action="feedback" data-attempt-scope="last-mission">提供回饋</button>
+          </div>
         </div>
-      </div>
+      ` : ""}
 
       <div class="actions">
         ${reviewCount ? `<button class="primary-btn" id="completeReviewMission">複習 ${reviewCount} 題待加強</button>` : ""}
+        ${canStartNextMission ? `<button class="primary-btn" id="completeNextMission">開始 ${missionConfigs[nextMissionId].title} 任務</button>` : ""}
         <button class="secondary-btn" id="backToJourney">回到加拿大任務地圖</button>
       </div>
     </section>
@@ -1096,6 +1278,9 @@ function renderComplete() {
 
   const completeReviewButton = document.getElementById("completeReviewMission");
   if (completeReviewButton) completeReviewButton.addEventListener("click", startReviewMode);
+
+  const completeNextMissionButton = document.getElementById("completeNextMission");
+  if (completeNextMissionButton) completeNextMissionButton.addEventListener("click", () => startOrOpenMission(nextMissionId, { randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
 
   document.getElementById("backToJourney").addEventListener("click", () => {
     state.screen = "home";
@@ -1109,3 +1294,5 @@ function renderComplete() {
 
 render();
 loadMissionData();
+
+

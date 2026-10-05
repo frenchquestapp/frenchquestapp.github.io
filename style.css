@@ -392,6 +392,11 @@ h1 {
   font-size: clamp(1.35rem, 4vw, 2rem);
   font-weight: 850;
   line-height: 1.25;
+  white-space: pre-line;
+}
+
+.review-line p {
+  white-space: pre-line;
 }
 
 .options {
@@ -475,6 +480,11 @@ h1 {
   font-weight: 900;
   letter-spacing: 0.07em;
   text-transform: uppercase;
+  white-space: normal;
+}
+
+.note-content {
+  white-space: pre-line;
 }
 
 .complete-card {
