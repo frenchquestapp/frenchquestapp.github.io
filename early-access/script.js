@@ -140,6 +140,15 @@ function saveProgress() {
   localStorage.setItem(storageKey, JSON.stringify(state.progress));
 }
 
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 function normalizeVocabularyText(value) {
   return String(value || "").trim().replace(/\s+/g, " ").toLowerCase();
 }
