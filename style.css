@@ -527,6 +527,57 @@ h1 {
   font-weight: 750;
 }
 
+.vocabulary-feedback-list,
+.vocabulary-list {
+  display: grid;
+  gap: 10px;
+}
+
+.vocabulary-feedback-item,
+.vocabulary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.vocabulary-feedback-item {
+  justify-content: flex-start;
+}
+
+.vocabulary-feedback-item strong,
+.vocabulary-row strong {
+  display: block;
+  color: var(--ink);
+}
+
+.vocabulary-feedback-item span,
+.vocabulary-row span {
+  display: block;
+  color: var(--muted);
+  font-weight: 750;
+}
+
+.vocabulary-star {
+  flex: 0 0 auto;
+  min-width: 112px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fffdf8;
+  color: var(--gold);
+  font-size: 0.92rem;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
 @media (max-width: 760px) {
   .app-shell {
     padding: 12px;
@@ -566,6 +617,17 @@ h1 {
   .route-preview,
   .route-preview-list {
     grid-column: 2;
+  }
+
+  .vocabulary-feedback-item,
+  .vocabulary-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .vocabulary-star,
+  .vocabulary-row .secondary-btn {
+    width: 100%;
   }
 }
 
