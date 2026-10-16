@@ -42,6 +42,7 @@ const baseStorageKey = missionId === "coffee_shop"
 const storageKey = `${progressStoragePrefix}${baseStorageKey}`;
 maybeMigrateEarlyAccessGroceryProgress();
 const visitorIdStorageKey = "frenchQuestVisitorIdV1";
+const savedVocabularyStorageKey = "frenchQuestSavedVocabularyV1";
 const xpPerCorrect = 10;
 const waitlistUrl = "https://forms.gle/cgmTvvnV7hXWH4gQ8";
 const feedbackUrl = "#";
@@ -159,6 +160,95 @@ function saveProgress() {
   localStorage.setItem(storageKey, JSON.stringify(state.progress));
 }
 
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function normalizeVocabularyText(value) {
+  return String(value || "").trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+function createVocabularyId(french, meaning) {
+  return `${normalizeVocabularyText(french)}::${normalizeVocabularyText(meaning)}`;
+}
+
+function parseVocabularyItems(question) {
+  return String(question.vocabulary || "")
+    .split("；")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map((item) => {
+      const parts = item.split("=");
+      const french = (parts.shift() || "").trim();
+      const meaning = parts.join("=").trim();
+      if (!french || !meaning) return null;
+
+      return {
+        id: createVocabularyId(french, meaning),
+        french,
+        meaning,
+        missionId,
+        questionId: question.id
+      };
+    })
+    .filter(Boolean);
+}
+
+function loadSavedVocabulary() {
+  try {
+    const saved = localStorage.getItem(savedVocabularyStorageKey);
+    if (!saved) return [];
+
+    const parsed = JSON.parse(saved);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed.filter((item) => item && item.id && item.french && item.meaning);
+  } catch (error) {
+    console.error("Saved vocabulary loading failed:", error);
+    return [];
+  }
+}
+
+function saveSavedVocabulary(items) {
+  localStorage.setItem(savedVocabularyStorageKey, JSON.stringify(items));
+}
+
+function isVocabularySaved(vocabularyId) {
+  return loadSavedVocabulary().some((item) => item.id === vocabularyId);
+}
+
+function addSavedVocabulary(item) {
+  const savedItems = loadSavedVocabulary();
+  if (savedItems.some((savedItem) => savedItem.id === item.id)) return false;
+
+  saveSavedVocabulary([
+    ...savedItems,
+    {
+      id: item.id,
+      french: item.french,
+      meaning: item.meaning,
+      missionId: item.missionId,
+      questionId: item.questionId,
+      savedAt: new Date().toISOString()
+    }
+  ]);
+  return true;
+}
+
+function removeSavedVocabulary(vocabularyId) {
+  const savedItems = loadSavedVocabulary();
+  const nextItems = savedItems.filter((item) => item.id !== vocabularyId);
+  if (nextItems.length === savedItems.length) return null;
+
+  saveSavedVocabulary(nextItems);
+  return savedItems.find((item) => item.id === vocabularyId) || null;
+}
+
 function createAttemptId() {
   if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
   return `attempt_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
@@ -208,6 +298,13 @@ function trackAnalyticsEvent(eventName, payload = {}) {
       duration_seconds: payload.durationSeconds ?? ""
     })
   }).catch(() => {});
+}
+
+function trackVocabularyEvent(eventName, item) {
+  trackAnalyticsEvent(eventName, {
+    missionId: item.missionId || "",
+    questionId: item.questionId || ""
+  });
 }
 
 function getAttemptIdForExternalAction(options = {}) {
@@ -468,6 +565,7 @@ function render() {
   if (state.screen === "question") renderQuestion();
   if (state.screen === "feedback") renderFeedback();
   if (state.screen === "complete") renderComplete();
+  if (state.screen === "vocabulary") renderMyVocabulary();
 }
 
 function renderLoading() {
@@ -837,6 +935,13 @@ function renderHome() {
             <p class="next-step">${formatDateTime(lastReviewAttempt.completedAt)} · Wrong: ${lastReviewAttempt.wrongCount} · Guessed: ${lastReviewAttempt.guessedCount} · Time: ${formatDuration(lastReviewAttempt.totalTimeMs)}</p>
           </div>
         ` : ""}
+        <div class="stat-card">
+          <span class="stat-label">My Vocabulary</span>
+          <strong>${loadSavedVocabulary().length}</strong>
+          <p class="next-step">收藏你想再複習的單字，建立自己的單字清單。</p>
+          <p class="next-step">答題後點選 ☆ 即可收藏。</p>
+          <button class="secondary-btn compact-btn" id="openMyVocabulary" type="button">My Vocabulary</button>
+        </div>
       </div>
     </section>
 
@@ -887,7 +992,61 @@ function renderHome() {
 
     const reviewButton = document.getElementById("reviewMission");
     if (reviewButton) reviewButton.addEventListener("click", startReviewMode);
+
+    document.getElementById("openMyVocabulary").addEventListener("click", () => {
+      trackAnalyticsEvent("my_vocabulary_opened");
+      state.screen = "vocabulary";
+      render();
+    });
   }
+}
+
+function renderMyVocabulary() {
+  const savedItems = loadSavedVocabulary();
+
+  app.innerHTML = `
+    <section class="panel mission-card">
+      <div class="mission-head">
+        <div>
+          <p class="eyebrow">My Vocabulary</p>
+          <h2>My Vocabulary</h2>
+        </div>
+      </div>
+
+      ${savedItems.length ? `
+        <div class="vocabulary-list">
+          ${savedItems.map((item) => `
+            <div class="vocabulary-row">
+              <div>
+                <strong>${escapeHtml(item.french)}</strong>
+                <span>${escapeHtml(item.meaning)}</span>
+              </div>
+              <button class="secondary-btn compact-btn" data-remove-vocabulary="${escapeHtml(item.id)}" type="button">移除</button>
+            </div>
+          `).join("")}
+        </div>
+      ` : `
+        <p class="next-step">你還沒有收藏 vocabulary。答題後可以在 Vocabulary 區按 ☆ 收藏。</p>
+      `}
+
+      <div class="actions">
+        <button class="secondary-btn" id="backToHomeFromVocabulary" type="button">回到加拿大任務地圖</button>
+      </div>
+    </section>
+  `;
+
+  document.getElementById("backToHomeFromVocabulary").addEventListener("click", () => {
+    state.screen = "home";
+    render();
+  });
+
+  document.querySelectorAll("[data-remove-vocabulary]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const removedItem = removeSavedVocabulary(button.dataset.removeVocabulary);
+      if (removedItem) trackVocabularyEvent("vocab_removed", removedItem);
+      renderMyVocabulary();
+    });
+  });
 }
 
 function startMission({ randomizeQuestions = false, randomizeOptions = false, reviewMode = false } = {}) {
@@ -1058,7 +1217,7 @@ function renderFeedback() {
       <div class="learning-notes">
         <div class="note">
           <span>Vocabulary</span>
-          <div class="note-content">${question.vocabulary}</div>
+          ${renderVocabularyItems(question)}
         </div>
         <div class="note">
           <span>Pattern</span>
@@ -1079,6 +1238,49 @@ function renderFeedback() {
 
   document.getElementById("missionMap").addEventListener("click", returnToJourneyMap);
   document.getElementById("nextQuestion").addEventListener("click", nextQuestion);
+  attachVocabularyButtons(question);
+}
+
+function renderVocabularyItems(question) {
+  const items = parseVocabularyItems(question);
+  if (!items.length) return `<div class="note-content">${escapeHtml(question.vocabulary)}</div>`;
+
+  return `
+    <div class="vocabulary-feedback-list">
+      ${items.map((item) => {
+        const saved = isVocabularySaved(item.id);
+        return `
+          <div class="vocabulary-feedback-item">
+            <button class="vocabulary-star" data-vocabulary-id="${escapeHtml(item.id)}" type="button" aria-label="${saved ? "取消收藏" : "收藏"} ${escapeHtml(item.french)}">${saved ? "★ 已收藏" : "☆ 收藏單字"}</button>
+            <div>
+              <strong>${escapeHtml(item.french)}</strong>
+              <span>${escapeHtml(item.meaning)}</span>
+            </div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function attachVocabularyButtons(question) {
+  const itemsById = new Map(parseVocabularyItems(question).map((item) => [item.id, item]));
+
+  document.querySelectorAll("[data-vocabulary-id]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const item = itemsById.get(button.dataset.vocabularyId);
+      if (!item) return;
+
+      if (isVocabularySaved(item.id)) {
+        const removedItem = removeSavedVocabulary(item.id);
+        if (removedItem) trackVocabularyEvent("vocab_removed", removedItem);
+      } else if (addSavedVocabulary(item)) {
+        trackVocabularyEvent("vocab_saved", item);
+      }
+
+      renderFeedback();
+    });
+  });
 }
 
 function returnToJourneyMap() {
