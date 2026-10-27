@@ -18,8 +18,18 @@ const missionConfigs = {
     sequenceLabel: "Mission 2",
     scenarioZh: "超市",
     nextMissionId: "banking",
-    nextMissionLabel: "Banking — coming soon.",
+    nextMissionLabel: "Banking 已上線，可以繼續挑戰。",
     retakeRandomization: "section"
+  },
+  banking: {
+    id: "banking",
+    title: "Banking",
+    dataPath: "./data/banking.json",
+    sequenceLabel: "Mission 3",
+    scenarioZh: "銀行",
+    nextMissionId: null,
+    nextMissionLabel: "更多情境任務即將推出。",
+    retakeRandomization: "global"
   }
 };
 
@@ -29,7 +39,7 @@ const runtimeEnvironment = runtimeConfig.environment || runtimeParams.get("envir
 const isReviewEnvironment = Boolean(runtimeConfig.reviewMode) || ["staging", "review", "integrated-staging"].includes(runtimeEnvironment);
 const publicMissionIds = Array.isArray(runtimeConfig.publicMissions)
   ? runtimeConfig.publicMissions
-  : (isReviewEnvironment ? ["coffee_shop", "grocery_store"] : ["coffee_shop"]);
+  : (isReviewEnvironment ? ["coffee_shop", "grocery_store", "banking"] : ["coffee_shop"]);
 const requestedMissionId = runtimeParams.get("mission");
 const shouldAutoStartMission = runtimeParams.get("start") === "1";
 const requestedMissionIsPlayable = missionConfigs[requestedMissionId] && publicMissionIds.includes(requestedMissionId);
@@ -805,7 +815,7 @@ function renderStagingNotice() {
     <section class="panel info-panel">
       <p class="eyebrow">Review Staging</p>
       <h2>Integrated mission review site.</h2>
-      <p>這是 Coffee Shop + Grocery Store 的整合測試站，與 production 分離，不會送出正式 analytics。</p>
+      <p>這是 Coffee Shop、Grocery Store 與 Banking 的整合測試站，與 production 分離，不會送出正式 analytics。</p>
     </section>
   `;
 }
@@ -816,7 +826,8 @@ function renderHome() {
   const skillTiles = getSkillPerformanceTiles(lastMissionAttempt?.skillPerformance);
   const reviewCount = getReviewQuestions().length;
   const isGroceryPlayable = isMissionPlayable("grocery_store");
-  const currentMissionLabel = missionId === "grocery_store" ? "Grocery Store" : "Coffee Shop";
+  const isBankingPlayable = isMissionPlayable("banking");
+  const currentMissionLabel = missionConfig.title;
   const resumeLabel = getResumeLabel();
 
   app.innerHTML = `
@@ -875,7 +886,7 @@ function renderHome() {
             <span class="route-state">${isGroceryPlayable ? "Ready" : "Coming Soon"}</span>
           </div>
           <div class="route-arrow" aria-hidden="true">|</div>
-          <div class="route-stop">
+          <div class="route-stop ${isBankingPlayable ? "ready" : ""}">
             <div class="route-icon" aria-hidden="true">$</div>
             <div>
               <p class="route-name">Banking</p>
@@ -886,7 +897,7 @@ function renderHome() {
                 <li>documents</li>
               </ul>
             </div>
-            <span class="route-state">Coming Soon</span>
+            <span class="route-state">${isBankingPlayable ? "Ready" : "Coming Soon"}</span>
           </div>
         </div>
 
@@ -895,6 +906,7 @@ function renderHome() {
             ? `<button class="primary-btn" id="continueMission">${resumeLabel}</button>`
             : `<button class="primary-btn" id="startCoffeeMission">開始 Coffee Shop 任務</button>`}
           ${isGroceryPlayable ? `<button class="primary-btn" id="startGroceryMission">開始 Grocery Store 任務</button>` : ""}
+          ${isBankingPlayable ? `<button class="primary-btn" id="startBankingMission">開始 Banking 任務</button>` : ""}
           ${lastMissionAttempt ? `<button class="secondary-btn" id="retakeMission">重新挑戰 ${currentMissionLabel}</button>` : ""}
           ${reviewCount ? `<button class="secondary-btn" id="reviewMission">複習 ${reviewCount} 題待加強</button>` : ""}
         </div>
@@ -956,8 +968,8 @@ function renderHome() {
       <div class="panel info-panel">
         <p class="eyebrow">Early Access</p>
         <h2>Get new missions when they launch.</h2>
-        <p>Grocery Store is now available. Banking is coming next. Join the early access list to get updates when new TEF practice missions are added.</p>
-        <p>目前 Coffee Shop 與 Grocery Store 開放免費體驗；更多任務與進階功能將陸續推出。</p>
+        <p>Coffee Shop, Grocery Store, and Banking are now available. Join the early access list to get updates when new TEF practice missions are added.</p>
+        <p>目前 Coffee Shop、Grocery Store 與 Banking 開放免費體驗；更多任務將陸續推出。</p>
         <p>本站僅記錄匿名使用統計，不包含姓名或 Email，用來提升內容與使用體驗。</p>
         <p>Your email will only be used for French Quest updates. 有任何問題，歡迎來信 <a href="mailto:bonjour.frenchquest@gmail.com">bonjour.frenchquest@gmail.com</a>。</p>
         <div class="actions">
@@ -986,6 +998,9 @@ function renderHome() {
 
     const groceryButton = document.getElementById("startGroceryMission");
     if (groceryButton) groceryButton.addEventListener("click", () => startOrOpenMission("grocery_store", { randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
+
+    const bankingButton = document.getElementById("startBankingMission");
+    if (bankingButton) bankingButton.addEventListener("click", () => startOrOpenMission("banking", { randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
 
     const retakeButton = document.getElementById("retakeMission");
     if (retakeButton) retakeButton.addEventListener("click", () => startMission({ randomizeQuestions: true, randomizeOptions: true, reviewMode: false }));
