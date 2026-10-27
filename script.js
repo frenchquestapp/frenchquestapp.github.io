@@ -46,6 +46,10 @@ const earlyAccessMissionIds = Array.isArray(runtimeConfig.earlyAccessMissionIds)
 const directlyAccessibleMissionIds = [...new Set([...publicMissionIds, ...earlyAccessMissionIds])];
 const requestedMissionId = runtimeParams.get("mission");
 const shouldAutoStartMission = runtimeParams.get("start") === "1";
+const earlyAccessEligibilityStorageKey = "frenchQuestEarlyAccessMissionIdsV1";
+const requestedMissionIsEarlyAccess = earlyAccessMissionIds.includes(requestedMissionId);
+if (requestedMissionIsEarlyAccess && shouldAutoStartMission) rememberEarlyAccessMission(requestedMissionId);
+const rememberedEarlyAccessMissionIds = getRememberedEarlyAccessMissionIds();
 const requestedMissionIsAccessible = missionConfigs[requestedMissionId] && directlyAccessibleMissionIds.includes(requestedMissionId);
 const missionId = requestedMissionIsAccessible ? requestedMissionId : "coffee_shop";
 const missionConfig = missionConfigs[missionId];
@@ -133,6 +137,27 @@ function maybeMigrateEarlyAccessGroceryProgress() {
     localStorage.setItem(storageKey, earlyAccessProgress);
   } catch (error) {
     console.warn("Early Access Grocery progress migration skipped:", error);
+  }
+}
+
+function getRememberedEarlyAccessMissionIds() {
+  try {
+    const storedMissionIds = JSON.parse(localStorage.getItem(earlyAccessEligibilityStorageKey) || "[]");
+    return Array.isArray(storedMissionIds)
+      ? storedMissionIds.filter((id) => earlyAccessMissionIds.includes(id))
+      : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function rememberEarlyAccessMission(targetMissionId) {
+  try {
+    const storedMissionIds = JSON.parse(localStorage.getItem(earlyAccessEligibilityStorageKey) || "[]");
+    const rememberedMissionIds = Array.isArray(storedMissionIds) ? storedMissionIds : [];
+    localStorage.setItem(earlyAccessEligibilityStorageKey, JSON.stringify([...new Set([...rememberedMissionIds, targetMissionId])]));
+  } catch (error) {
+    // Early Access routing remains available even when localStorage is unavailable.
   }
 }
 
@@ -799,6 +824,10 @@ function isMissionPublic(targetMissionId) {
   return publicMissionIds.includes(targetMissionId);
 }
 
+function isMissionVisibleOnHome(targetMissionId) {
+  return isMissionPublic(targetMissionId) || rememberedEarlyAccessMissionIds.includes(targetMissionId);
+}
+
 function isMissionDirectlyAccessible(targetMissionId) {
   return directlyAccessibleMissionIds.includes(targetMissionId);
 }
@@ -835,6 +864,7 @@ function renderHome() {
   const skillTiles = getSkillPerformanceTiles(lastMissionAttempt?.skillPerformance);
   const reviewCount = getReviewQuestions().length;
   const isGroceryPlayable = isMissionPublic("grocery_store");
+  const isBankingVisible = isMissionVisibleOnHome("banking");
   const currentMissionLabel = missionConfig.title;
   const resumeLabel = getResumeLabel();
 
@@ -893,6 +923,22 @@ function renderHome() {
             </div>
             <span class="route-state">${isGroceryPlayable ? "Ready" : "Coming Soon"}</span>
           </div>
+          ${isBankingVisible ? `
+            <div class="route-arrow" aria-hidden="true">|</div>
+            <div class="route-stop ready">
+              <div class="route-icon" aria-hidden="true">$</div>
+              <div>
+                <p class="route-name">Banking</p>
+                <p class="route-preview">Practice French for everyday banking situations, account services, and questions at the service counter.</p>
+                <ul class="route-preview-list">
+                  <li>appointments</li>
+                  <li>cards and accounts</li>
+                  <li>documents</li>
+                </ul>
+              </div>
+              <span class="route-state">Ready</span>
+            </div>
+          ` : ""}
         </div>
 
         <div class="actions">
@@ -900,6 +946,7 @@ function renderHome() {
             ? `<button class="primary-btn" id="continueMission">${resumeLabel}</button>`
             : `<button class="primary-btn" id="startCoffeeMission">開始 Coffee Shop 任務</button>`}
           ${isGroceryPlayable ? `<button class="primary-btn" id="startGroceryMission">開始 Grocery Store 任務</button>` : ""}
+          ${isBankingVisible ? `<button class="primary-btn" id="startBankingMission">開始 Banking 任務</button>` : ""}
           ${lastMissionAttempt ? `<button class="secondary-btn" id="retakeMission">重新挑戰 ${currentMissionLabel}</button>` : ""}
           ${reviewCount ? `<button class="secondary-btn" id="reviewMission">複習 ${reviewCount} 題待加強</button>` : ""}
         </div>
@@ -991,6 +1038,9 @@ function renderHome() {
 
     const groceryButton = document.getElementById("startGroceryMission");
     if (groceryButton) groceryButton.addEventListener("click", () => startOrOpenMission("grocery_store", { randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
+
+    const bankingButton = document.getElementById("startBankingMission");
+    if (bankingButton) bankingButton.addEventListener("click", () => startOrOpenMission("banking", { randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
 
     const retakeButton = document.getElementById("retakeMission");
     if (retakeButton) retakeButton.addEventListener("click", () => startMission({ randomizeQuestions: true, randomizeOptions: true, reviewMode: false }));
@@ -1410,7 +1460,7 @@ function renderComplete() {
   const skillTiles = getSkillPerformanceTiles(calculateSkillPerformance(state.answers), completeSkillPerformanceLabels);
   const reviewCount = getReviewQuestions().length;
   const nextMissionId = missionConfig.nextMissionId;
-  const canStartNextMission = Boolean(nextMissionId && missionConfigs[nextMissionId] && isMissionPublic(nextMissionId));
+  const canStartNextMission = Boolean(nextMissionId && missionConfigs[nextMissionId] && isMissionVisibleOnHome(nextMissionId));
   const nextStepText = reviewCount === 0
     ? `太好了！這次任務的待加強題目都已經複習完成。下一個任務：${missionConfig.nextMissionLabel}`
     : "下一步：複習答錯與不確定的題目，強化你的 TEF 情境理解。";
