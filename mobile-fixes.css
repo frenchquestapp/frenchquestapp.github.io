@@ -18,10 +18,6 @@
   font-size: clamp(2rem, 5vw, 3.15rem);
 }
 
-.keep-together {
-  white-space: nowrap;
-}
-
 .launch-copy,
 .info-panel p {
   color: var(--muted);
@@ -133,10 +129,6 @@
 
   .launch-hero h2 {
     font-size: 1.85rem;
-  }
-
-  .keep-together {
-    white-space: normal;
   }
 
   .launch-actions,
