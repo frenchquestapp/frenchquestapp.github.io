@@ -308,6 +308,14 @@ h1 {
   background: var(--teal-dark);
 }
 
+.vocabulary-cta {
+  align-self: flex-start;
+}
+
+.roadmap-teaser {
+  opacity: 0.82;
+}
+
 .route-arrow {
   padding-left: 21px;
   color: var(--red-dark);

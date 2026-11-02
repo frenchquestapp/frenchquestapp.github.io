@@ -929,7 +929,7 @@ function renderHome() {
       </div>
       <div class="actions launch-actions">
         <button class="primary-btn" id="heroStartMission" ${state.missionLoaded ? "" : "disabled"}>開始第一個任務</button>
-        <button class="secondary-btn" data-action="waitlist">加入搶先體驗</button>
+        <button class="secondary-btn" data-action="waitlist">接收新任務通知</button>
       </div>
     </section>
 
@@ -987,6 +987,15 @@ function renderHome() {
               <button class="route-go" data-mission-launch="banking" data-mission-action="${bankingCardCta.toLowerCase()}" type="button">${bankingCardCta}</button>
             </div>
           ` : ""}
+          <div class="route-arrow" aria-hidden="true">|</div>
+          <div class="route-stop">
+            <div class="route-icon" aria-hidden="true">APT</div>
+            <div>
+              <p class="route-name">Renting an Apartment</p>
+              <p class="route-preview">Practice French for apartment viewings, rent, utilities, and communicating with a landlord.</p>
+            </div>
+            <span class="route-state">Coming Soon</span>
+          </div>
         </div>
 
         ${reviewCount ? `<div class="mission-secondary-actions">
@@ -1000,7 +1009,7 @@ function renderHome() {
           <strong>${loadSavedVocabulary().length}</strong>
           <p class="next-step">收藏你想再複習的單字，建立自己的單字清單。</p>
           <p class="next-step">答題後點選 ☆ 即可收藏。</p>
-          <button class="secondary-btn compact-btn" id="openMyVocabulary" type="button">My Vocabulary</button>
+          <button class="route-go vocabulary-cta" id="openMyVocabulary" type="button">My Vocabulary</button>
         </div>
         <div class="stat-card">
           <span class="stat-label">Total XP</span>
@@ -1045,6 +1054,13 @@ function renderHome() {
         <p class="eyebrow">About French Quest</p>
         <h2>Built for practical TEF Canada preparation.</h2>
         <p>French Quest is for learners who want more than grammar drills. Each mission uses simple real-life situations to practice vocabulary, reading, responses, and test-style thinking.</p>
+      </div>
+
+      <div class="panel info-panel roadmap-teaser">
+        <p class="eyebrow">Roadmap</p>
+        <h2>Listening Practice</h2>
+        <p>Train your TEF listening skills with real-life audio scenarios.</p>
+        <span class="route-state">Coming Soon</span>
       </div>
 
       <div class="panel info-panel">
