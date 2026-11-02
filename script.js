@@ -46,6 +46,7 @@ const earlyAccessMissionIds = Array.isArray(runtimeConfig.earlyAccessMissionIds)
 const directlyAccessibleMissionIds = [...new Set([...publicMissionIds, ...earlyAccessMissionIds])];
 const requestedMissionId = runtimeParams.get("mission");
 const shouldAutoStartMission = runtimeParams.get("start") === "1";
+const shouldRetakeMission = runtimeParams.get("retake") === "1";
 const earlyAccessEligibilityStorageKey = "frenchQuestEarlyAccessMissionIdsV1";
 const requestedMissionIsEarlyAccess = earlyAccessMissionIds.includes(requestedMissionId);
 if (requestedMissionIsEarlyAccess && shouldAutoStartMission) rememberEarlyAccessMission(requestedMissionId);
@@ -384,27 +385,30 @@ function trackPageViewOnce() {
 }
 
 function removeStartParamFromUrl() {
-  if (!runtimeParams.has("start")) return;
+  if (!runtimeParams.has("start") && !runtimeParams.has("retake")) return;
   const params = new URLSearchParams(window.location.search);
   params.delete("start");
+  params.delete("retake");
   const query = params.toString();
   const nextUrl = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
   window.history.replaceState({}, "", nextUrl);
 }
 
-function isValidActiveSession(session) {
+function isValidMissionActiveSession(session, targetMissionId) {
   if (!session || session.version !== 1) return false;
-  if (session.missionId !== missionId || session.mode !== "mission") return false;
+  if (session.missionId !== targetMissionId || session.mode !== "mission") return false;
   if (!["question", "feedback"].includes(session.screen)) return false;
   if (!Array.isArray(session.activeQuestions) || session.activeQuestions.length === 0) return false;
   if (!Array.isArray(session.answers)) return false;
   if (!Number.isInteger(session.currentQuestion)) return false;
   if (session.currentQuestion < 0 || session.currentQuestion >= session.activeQuestions.length) return false;
 
-  const knownQuestionIds = new Set(questions.map((question) => question.id));
+  const knownQuestionIds = targetMissionId === missionId
+    ? new Set(questions.map((question) => question.id))
+    : null;
   const hasValidQuestions = session.activeQuestions.every((question) => (
     question &&
-    knownQuestionIds.has(question.id) &&
+    (!knownQuestionIds || knownQuestionIds.has(question.id)) &&
     Array.isArray(question.options) &&
     Number.isInteger(question.correctIndexOverride)
   ));
@@ -414,6 +418,10 @@ function isValidActiveSession(session) {
   if (session.screen === "question" && session.answers.length > session.currentQuestion) return false;
 
   return true;
+}
+
+function isValidActiveSession(session) {
+  return isValidMissionActiveSession(session, missionId);
 }
 
 function saveActiveSession() {
@@ -577,13 +585,13 @@ async function loadMissionData() {
     questions = data;
     state.missionLoaded = true;
     state.readiness = state.progress.readiness || 0;
-    const restored = restoreActiveSession();
+    const restored = shouldRetakeMission ? false : restoreActiveSession();
 
-    if (shouldAutoStartMission) removeStartParamFromUrl();
+    if (shouldAutoStartMission || shouldRetakeMission) removeStartParamFromUrl();
 
     if (!restored && shouldAutoStartMission && isMissionDirectlyAccessible(missionId)) {
       trackPageViewOnce();
-      startMission({ randomizeQuestions: false, randomizeOptions: false, reviewMode: false });
+      startMission({ randomizeQuestions: shouldRetakeMission, randomizeOptions: shouldRetakeMission, reviewMode: false });
       return;
     }
 
@@ -781,6 +789,40 @@ function getResumeLabel() {
   return `繼續 ${missionConfig.title}（第 ${session.currentQuestion + 1} 題）`;
 }
 
+function getMissionProgressStorageKey(targetMissionId) {
+  const targetBaseStorageKey = targetMissionId === "coffee_shop"
+    ? "frenchQuestProgressV03"
+    : `frenchQuestProgressV03_${targetMissionId}`;
+  return `${progressStoragePrefix}${targetBaseStorageKey}`;
+}
+
+function getMissionCardProgress(targetMissionId) {
+  if (targetMissionId === missionId) return state.progress;
+
+  try {
+    const saved = localStorage.getItem(getMissionProgressStorageKey(targetMissionId));
+    if (!saved) return getFreshDefaultProgress();
+    const parsed = JSON.parse(saved);
+    return {
+      ...getFreshDefaultProgress(),
+      ...parsed,
+      completedMissions: parsed.completedMissions || [],
+      activeSession: parsed.activeSession || null
+    };
+  } catch (error) {
+    return getFreshDefaultProgress();
+  }
+}
+
+function getMissionCardCta(targetMissionId) {
+  if (!isMissionPublic(targetMissionId)) return null;
+
+  const progress = getMissionCardProgress(targetMissionId);
+  if (isValidMissionActiveSession(progress.activeSession, targetMissionId)) return "Continue";
+  if (progress.completedMissions.includes(targetMissionId)) return "Retake";
+  return "Go";
+}
+
 function handleExternalAction(type, options = {}) {
   trackExternalAction(type, options);
 
@@ -816,6 +858,8 @@ function getMissionUrl(targetMissionId, options = {}) {
   params.set("mission", targetMissionId);
   if (options.start) params.set("start", "1");
   if (!options.start) params.delete("start");
+  if (options.retake) params.set("retake", "1");
+  if (!options.retake) params.delete("retake");
   if (isReviewEnvironment && !params.get("environment")) params.set("environment", runtimeEnvironment);
   return `${window.location.pathname}?${params.toString()}`;
 }
@@ -843,7 +887,7 @@ function startOrOpenMission(targetMissionId, options = {}) {
     return;
   }
 
-  window.location.href = getMissionUrl(targetMissionId, { start: true });
+  window.location.href = getMissionUrl(targetMissionId, { start: true, retake: options.retake });
 }
 
 function renderStagingNotice() {
@@ -865,13 +909,15 @@ function renderHome() {
   const reviewCount = getReviewQuestions().length;
   const isGroceryPlayable = isMissionPublic("grocery_store");
   const isBankingVisible = isMissionVisibleOnHome("banking");
+  const coffeeCardCta = getMissionCardCta("coffee_shop");
+  const groceryCardCta = getMissionCardCta("grocery_store");
+  const bankingCardCta = getMissionCardCta("banking");
   const currentMissionLabel = missionConfig.title;
-  const resumeLabel = getResumeLabel();
 
   app.innerHTML = `
     <section class="panel launch-hero">
       <p class="eyebrow">${isReviewEnvironment ? "Review Staging" : "Launch Version 1"}</p>
-      <h2>Practice French for TEF Canada through real-life Canadian scenarios.</h2>
+      <h2>Practice French for TEF Canada through real-life <span class="keep-together">Canadian scenarios.</span></h2>
       <p class="launch-copy">為中文使用者設計的 TEF Canada 法文情境練習工具。</p>
       <p class="launch-copy">從零開始的 TEF Canada 情境入門；更高程度內容陸續推出。</p>
       <p class="launch-copy">French Quest helps TEF Canada learners practice everyday French for real situations: ordering coffee, shopping for groceries, and visiting a bank.</p>
@@ -907,7 +953,7 @@ function renderHome() {
           <div class="route-stop ready">
             <div class="route-icon" aria-hidden="true">CUP</div>
             <p class="route-name">Coffee Shop Mission</p>
-            <span class="route-state">Ready</span>
+            <button class="route-go" data-mission-launch="coffee_shop" data-mission-action="${coffeeCardCta.toLowerCase()}" type="button">${coffeeCardCta}</button>
           </div>
           <div class="route-arrow" aria-hidden="true">|</div>
           <div class="route-stop ${isGroceryPlayable ? "ready" : ""}">
@@ -921,7 +967,9 @@ function renderHome() {
                 <li>reusable bags</li>
               </ul>
             </div>
-            <span class="route-state">${isGroceryPlayable ? "Ready" : "Coming Soon"}</span>
+            ${isGroceryPlayable
+              ? `<button class="route-go" data-mission-launch="grocery_store" data-mission-action="${groceryCardCta.toLowerCase()}" type="button">${groceryCardCta}</button>`
+              : `<span class="route-state">Coming Soon</span>`}
           </div>
           ${isBankingVisible ? `
             <div class="route-arrow" aria-hidden="true">|</div>
@@ -936,23 +984,24 @@ function renderHome() {
                   <li>documents</li>
                 </ul>
               </div>
-              <span class="route-state">Ready</span>
+              <button class="route-go" data-mission-launch="banking" data-mission-action="${bankingCardCta.toLowerCase()}" type="button">${bankingCardCta}</button>
             </div>
           ` : ""}
         </div>
 
-        <div class="actions">
-          ${missionId === "coffee_shop" && resumeLabel
-            ? `<button class="primary-btn" id="continueMission">${resumeLabel}</button>`
-            : `<button class="primary-btn" id="startCoffeeMission">開始 Coffee Shop 任務</button>`}
-          ${isGroceryPlayable ? `<button class="primary-btn" id="startGroceryMission">開始 Grocery Store 任務</button>` : ""}
-          ${isBankingVisible ? `<button class="primary-btn" id="startBankingMission">開始 Banking 任務</button>` : ""}
-          ${lastMissionAttempt ? `<button class="secondary-btn" id="retakeMission">重新挑戰 ${currentMissionLabel}</button>` : ""}
-          ${reviewCount ? `<button class="secondary-btn" id="reviewMission">複習 ${reviewCount} 題待加強</button>` : ""}
-        </div>
+        ${reviewCount ? `<div class="mission-secondary-actions">
+          <button class="secondary-btn" id="reviewMission">複習 ${reviewCount} 題待加強</button>
+        </div>` : ""}
       </div>
 
       <div class="panel progress-panel" style="display: flex; flex-direction: column; gap: 16px;">
+        <div class="stat-card">
+          <span class="stat-label">My Vocabulary</span>
+          <strong>${loadSavedVocabulary().length}</strong>
+          <p class="next-step">收藏你想再複習的單字，建立自己的單字清單。</p>
+          <p class="next-step">答題後點選 ☆ 即可收藏。</p>
+          <button class="secondary-btn compact-btn" id="openMyVocabulary" type="button">My Vocabulary</button>
+        </div>
         <div class="stat-card">
           <span class="stat-label">Total XP</span>
           <strong>${state.progress.totalXp || 0}</strong>
@@ -987,13 +1036,6 @@ function renderHome() {
             <p class="next-step">${formatDateTime(lastReviewAttempt.completedAt)} · Wrong: ${lastReviewAttempt.wrongCount} · Guessed: ${lastReviewAttempt.guessedCount} · Time: ${formatDuration(lastReviewAttempt.totalTimeMs)}</p>
           </div>
         ` : ""}
-        <div class="stat-card">
-          <span class="stat-label">My Vocabulary</span>
-          <strong>${loadSavedVocabulary().length}</strong>
-          <p class="next-step">收藏你想再複習的單字，建立自己的單字清單。</p>
-          <p class="next-step">答題後點選 ☆ 即可收藏。</p>
-          <button class="secondary-btn compact-btn" id="openMyVocabulary" type="button">My Vocabulary</button>
-        </div>
       </div>
     </section>
 
@@ -1030,20 +1072,18 @@ function renderHome() {
 
   if (state.missionLoaded) {
     document.getElementById("heroStartMission").addEventListener("click", () => startOrOpenMission(missionId, { randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
-    const continueButton = document.getElementById("continueMission");
-    if (continueButton) continueButton.addEventListener("click", () => startOrOpenMission(missionId, { randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
-
-    const coffeeButton = document.getElementById("startCoffeeMission");
-    if (coffeeButton) coffeeButton.addEventListener("click", () => startOrOpenMission("coffee_shop", { randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
-
-    const groceryButton = document.getElementById("startGroceryMission");
-    if (groceryButton) groceryButton.addEventListener("click", () => startOrOpenMission("grocery_store", { randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
-
-    const bankingButton = document.getElementById("startBankingMission");
-    if (bankingButton) bankingButton.addEventListener("click", () => startOrOpenMission("banking", { randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
-
-    const retakeButton = document.getElementById("retakeMission");
-    if (retakeButton) retakeButton.addEventListener("click", () => startMission({ randomizeQuestions: true, randomizeOptions: true, reviewMode: false }));
+    document.querySelectorAll("[data-mission-launch]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const isRetake = button.dataset.missionAction === "retake";
+        startOrOpenMission(button.dataset.missionLaunch, {
+          forceNew: isRetake,
+          retake: isRetake,
+          randomizeQuestions: isRetake,
+          randomizeOptions: isRetake,
+          reviewMode: false
+        });
+      });
+    });
 
     const reviewButton = document.getElementById("reviewMission");
     if (reviewButton) reviewButton.addEventListener("click", startReviewMode);
