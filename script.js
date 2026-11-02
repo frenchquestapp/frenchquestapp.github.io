@@ -1010,7 +1010,7 @@ function renderHome() {
         <h2>More missions are on the way.</h2>
         <p>Coffee Shop, Grocery Store, and Banking are now available free. Join the update list to hear when new TEF practice missions are added.</p>
         <p>目前 Coffee Shop、Grocery Store 與 Banking 開放免費體驗；更多任務將陸續推出。</p>
-        <p>本站僅記錄匿名使用統計，不包含姓名或 Email，用來提升內容與使用體驗。</p>
+        <p>本站會記錄不含姓名或 Email 的使用統計，用來改善內容與使用體驗。</p>
         <p>Your email will only be used for French Quest updates. 有任何問題，歡迎來信 <a href="mailto:bonjour.frenchquest@gmail.com">bonjour.frenchquest@gmail.com</a>。</p>
         <div class="actions">
           <button class="primary-btn" data-action="waitlist">接收新任務通知</button>
