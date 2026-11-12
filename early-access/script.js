@@ -18,7 +18,27 @@ const missionConfigs = {
     sequenceLabel: "Mission 2",
     scenarioZh: "超市",
     nextMissionId: "banking",
-    nextMissionLabel: "Banking — coming soon.",
+    nextMissionLabel: "更多情境任務即將推出。",
+    retakeRandomization: "section"
+  },
+  banking: {
+    id: "banking",
+    title: "Banking",
+    dataPath: "./data/banking.json",
+    sequenceLabel: "Mission 3",
+    scenarioZh: "銀行",
+    nextMissionId: null,
+    nextMissionLabel: "更多情境任務即將推出。",
+    retakeRandomization: "global"
+  },
+  renting_apartment: {
+    id: "renting_apartment",
+    title: "Renting an Apartment",
+    dataPath: "./data/renting_apartment.json",
+    sequenceLabel: "Mission 4",
+    scenarioZh: "租屋",
+    nextMissionId: null,
+    nextMissionLabel: "更多情境任務即將推出。",
     retakeRandomization: "section"
   }
 };
@@ -29,17 +49,27 @@ const runtimeEnvironment = runtimeConfig.environment || runtimeParams.get("envir
 const isReviewEnvironment = Boolean(runtimeConfig.reviewMode) || ["staging", "review", "integrated-staging"].includes(runtimeEnvironment);
 const publicMissionIds = Array.isArray(runtimeConfig.publicMissions)
   ? runtimeConfig.publicMissions
-  : (isReviewEnvironment ? ["coffee_shop", "grocery_store"] : ["coffee_shop"]);
+  : (isReviewEnvironment ? ["coffee_shop", "grocery_store", "banking"] : ["coffee_shop"]);
+const earlyAccessMissionIds = Array.isArray(runtimeConfig.earlyAccessMissionIds)
+  ? runtimeConfig.earlyAccessMissionIds
+  : (isReviewEnvironment ? ["banking"] : []);
+const directlyAccessibleMissionIds = [...new Set([...publicMissionIds, ...earlyAccessMissionIds])];
 const requestedMissionId = runtimeParams.get("mission");
 const shouldAutoStartMission = runtimeParams.get("start") === "1";
-const requestedMissionIsPlayable = missionConfigs[requestedMissionId] && publicMissionIds.includes(requestedMissionId);
-const missionId = requestedMissionIsPlayable ? requestedMissionId : "coffee_shop";
+const shouldRetakeMission = runtimeParams.get("retake") === "1";
+const earlyAccessEligibilityStorageKey = "frenchQuestEarlyAccessMissionIdsV1";
+const requestedMissionIsEarlyAccess = earlyAccessMissionIds.includes(requestedMissionId);
+if (requestedMissionIsEarlyAccess && shouldAutoStartMission) rememberEarlyAccessMission(requestedMissionId);
+const rememberedEarlyAccessMissionIds = getRememberedEarlyAccessMissionIds();
+const requestedMissionIsAccessible = missionConfigs[requestedMissionId] && directlyAccessibleMissionIds.includes(requestedMissionId);
+const missionId = requestedMissionIsAccessible ? requestedMissionId : "coffee_shop";
 const missionConfig = missionConfigs[missionId];
 const progressStoragePrefix = runtimeConfig.progressStoragePrefix || "";
 const baseStorageKey = missionId === "coffee_shop"
   ? "frenchQuestProgressV03"
   : `frenchQuestProgressV03_${missionId}`;
 const storageKey = `${progressStoragePrefix}${baseStorageKey}`;
+maybeMigrateEarlyAccessGroceryProgress();
 const visitorIdStorageKey = "frenchQuestVisitorIdV1";
 const savedVocabularyStorageKey = "frenchQuestSavedVocabularyV1";
 const xpPerCorrect = 10;
@@ -100,6 +130,46 @@ let pageViewTracked = false;
 
 function getFreshDefaultProgress() {
   return JSON.parse(JSON.stringify(defaultProgress));
+}
+
+function maybeMigrateEarlyAccessGroceryProgress() {
+  if (!runtimeConfig.migrateEarlyAccessGroceryProgress) return;
+  if (missionId !== "grocery_store") return;
+  if (progressStoragePrefix) return;
+
+  try {
+    if (localStorage.getItem(storageKey)) return;
+
+    const earlyAccessStorageKey = `earlyAccess_${baseStorageKey}`;
+    const earlyAccessProgress = localStorage.getItem(earlyAccessStorageKey);
+    if (!earlyAccessProgress) return;
+
+    JSON.parse(earlyAccessProgress);
+    localStorage.setItem(storageKey, earlyAccessProgress);
+  } catch (error) {
+    console.warn("Early Access Grocery progress migration skipped:", error);
+  }
+}
+
+function getRememberedEarlyAccessMissionIds() {
+  try {
+    const storedMissionIds = JSON.parse(localStorage.getItem(earlyAccessEligibilityStorageKey) || "[]");
+    return Array.isArray(storedMissionIds)
+      ? storedMissionIds.filter((id) => earlyAccessMissionIds.includes(id))
+      : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function rememberEarlyAccessMission(targetMissionId) {
+  try {
+    const storedMissionIds = JSON.parse(localStorage.getItem(earlyAccessEligibilityStorageKey) || "[]");
+    const rememberedMissionIds = Array.isArray(storedMissionIds) ? storedMissionIds : [];
+    localStorage.setItem(earlyAccessEligibilityStorageKey, JSON.stringify([...new Set([...rememberedMissionIds, targetMissionId])]));
+  } catch (error) {
+    // Early Access routing remains available even when localStorage is unavailable.
+  }
 }
 
 function loadProgress() {
@@ -325,27 +395,30 @@ function trackPageViewOnce() {
 }
 
 function removeStartParamFromUrl() {
-  if (!runtimeParams.has("start")) return;
+  if (!runtimeParams.has("start") && !runtimeParams.has("retake")) return;
   const params = new URLSearchParams(window.location.search);
   params.delete("start");
+  params.delete("retake");
   const query = params.toString();
   const nextUrl = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
   window.history.replaceState({}, "", nextUrl);
 }
 
-function isValidActiveSession(session) {
+function isValidMissionActiveSession(session, targetMissionId) {
   if (!session || session.version !== 1) return false;
-  if (session.missionId !== missionId || session.mode !== "mission") return false;
+  if (session.missionId !== targetMissionId || session.mode !== "mission") return false;
   if (!["question", "feedback"].includes(session.screen)) return false;
   if (!Array.isArray(session.activeQuestions) || session.activeQuestions.length === 0) return false;
   if (!Array.isArray(session.answers)) return false;
   if (!Number.isInteger(session.currentQuestion)) return false;
   if (session.currentQuestion < 0 || session.currentQuestion >= session.activeQuestions.length) return false;
 
-  const knownQuestionIds = new Set(questions.map((question) => question.id));
+  const knownQuestionIds = targetMissionId === missionId
+    ? new Set(questions.map((question) => question.id))
+    : null;
   const hasValidQuestions = session.activeQuestions.every((question) => (
     question &&
-    knownQuestionIds.has(question.id) &&
+    (!knownQuestionIds || knownQuestionIds.has(question.id)) &&
     Array.isArray(question.options) &&
     Number.isInteger(question.correctIndexOverride)
   ));
@@ -355,6 +428,10 @@ function isValidActiveSession(session) {
   if (session.screen === "question" && session.answers.length > session.currentQuestion) return false;
 
   return true;
+}
+
+function isValidActiveSession(session) {
+  return isValidMissionActiveSession(session, missionId);
 }
 
 function saveActiveSession() {
@@ -518,12 +595,13 @@ async function loadMissionData() {
     questions = data;
     state.missionLoaded = true;
     state.readiness = state.progress.readiness || 0;
-    const restored = restoreActiveSession();
+    const restored = shouldRetakeMission ? false : restoreActiveSession();
 
-    if (shouldAutoStartMission) removeStartParamFromUrl();
+    if (shouldAutoStartMission || shouldRetakeMission) removeStartParamFromUrl();
 
-    if (!restored && shouldAutoStartMission && isMissionPlayable(missionId)) {
-      startMission({ randomizeQuestions: false, randomizeOptions: false, reviewMode: false });
+    if (!restored && shouldAutoStartMission && isMissionDirectlyAccessible(missionId)) {
+      trackPageViewOnce();
+      startMission({ randomizeQuestions: shouldRetakeMission, randomizeOptions: shouldRetakeMission, reviewMode: false });
       return;
     }
 
@@ -706,6 +784,15 @@ function formatDuration(milliseconds) {
   return `${minutes}m ${seconds}s`;
 }
 
+function formatFrenchNumberSpacing(text) {
+  const value = String(text);
+  if (missionId !== "renting_apartment") return value;
+
+  return value
+    .replace(/(\d) (?=\d{3}\s*\$)/g, "$1\u202f")
+    .replace(/(\d) \$/g, "$1\u00a0$");
+}
+
 function getReviewQuestions() {
   const ids = uniqueIds([
     ...state.progress.wrongQuestionIds,
@@ -719,6 +806,40 @@ function getResumeLabel() {
   const session = state.progress.activeSession;
   if (!isValidActiveSession(session)) return "";
   return `繼續 ${missionConfig.title}（第 ${session.currentQuestion + 1} 題）`;
+}
+
+function getMissionProgressStorageKey(targetMissionId) {
+  const targetBaseStorageKey = targetMissionId === "coffee_shop"
+    ? "frenchQuestProgressV03"
+    : `frenchQuestProgressV03_${targetMissionId}`;
+  return `${progressStoragePrefix}${targetBaseStorageKey}`;
+}
+
+function getMissionCardProgress(targetMissionId) {
+  if (targetMissionId === missionId) return state.progress;
+
+  try {
+    const saved = localStorage.getItem(getMissionProgressStorageKey(targetMissionId));
+    if (!saved) return getFreshDefaultProgress();
+    const parsed = JSON.parse(saved);
+    return {
+      ...getFreshDefaultProgress(),
+      ...parsed,
+      completedMissions: parsed.completedMissions || [],
+      activeSession: parsed.activeSession || null
+    };
+  } catch (error) {
+    return getFreshDefaultProgress();
+  }
+}
+
+function getMissionCardCta(targetMissionId) {
+  if (!isMissionVisibleOnHome(targetMissionId)) return null;
+
+  const progress = getMissionCardProgress(targetMissionId);
+  if (isValidMissionActiveSession(progress.activeSession, targetMissionId)) return "Continue";
+  if (progress.completedMissions.includes(targetMissionId)) return "Retake";
+  return "Go";
 }
 
 function handleExternalAction(type, options = {}) {
@@ -756,12 +877,22 @@ function getMissionUrl(targetMissionId, options = {}) {
   params.set("mission", targetMissionId);
   if (options.start) params.set("start", "1");
   if (!options.start) params.delete("start");
+  if (options.retake) params.set("retake", "1");
+  if (!options.retake) params.delete("retake");
   if (isReviewEnvironment && !params.get("environment")) params.set("environment", runtimeEnvironment);
   return `${window.location.pathname}?${params.toString()}`;
 }
 
-function isMissionPlayable(targetMissionId) {
+function isMissionPublic(targetMissionId) {
   return publicMissionIds.includes(targetMissionId);
+}
+
+function isMissionVisibleOnHome(targetMissionId) {
+  return isMissionPublic(targetMissionId) || rememberedEarlyAccessMissionIds.includes(targetMissionId);
+}
+
+function isMissionDirectlyAccessible(targetMissionId) {
+  return directlyAccessibleMissionIds.includes(targetMissionId);
 }
 
 function startOrOpenMission(targetMissionId, options = {}) {
@@ -775,7 +906,7 @@ function startOrOpenMission(targetMissionId, options = {}) {
     return;
   }
 
-  window.location.href = getMissionUrl(targetMissionId, { start: true });
+  window.location.href = getMissionUrl(targetMissionId, { start: true, retake: options.retake });
 }
 
 function renderStagingNotice() {
@@ -785,7 +916,7 @@ function renderStagingNotice() {
     <section class="panel info-panel">
       <p class="eyebrow">Review Staging</p>
       <h2>Integrated mission review site.</h2>
-      <p>這是 Coffee Shop + Grocery Store 的整合測試站，與 production 分離，不會送出正式 analytics。</p>
+      <p>這是 Coffee Shop 與 Grocery Store 的整合測試站，與 production 分離，不會送出正式 analytics。</p>
     </section>
   `;
 }
@@ -795,14 +926,19 @@ function renderHome() {
   const lastReviewAttempt = getValidAttempt(state.progress.lastReviewAttempt);
   const skillTiles = getSkillPerformanceTiles(lastMissionAttempt?.skillPerformance);
   const reviewCount = getReviewQuestions().length;
-  const isGroceryPlayable = isMissionPlayable("grocery_store");
-  const currentMissionLabel = missionId === "grocery_store" ? "Grocery Store" : "Coffee Shop";
-  const resumeLabel = getResumeLabel();
+  const isGroceryPlayable = isMissionPublic("grocery_store");
+  const isBankingVisible = isMissionVisibleOnHome("banking");
+  const isRentingVisible = isMissionVisibleOnHome("renting_apartment");
+  const coffeeCardCta = getMissionCardCta("coffee_shop");
+  const groceryCardCta = getMissionCardCta("grocery_store");
+  const bankingCardCta = getMissionCardCta("banking");
+  const rentingCardCta = getMissionCardCta("renting_apartment");
+  const currentMissionLabel = missionConfig.title;
 
   app.innerHTML = `
     <section class="panel launch-hero">
       <p class="eyebrow">${isReviewEnvironment ? "Review Staging" : "Launch Version 1"}</p>
-      <h2>Practice French for TEF Canada through real-life Canadian scenarios.</h2>
+      <h2>Practice French for TEF Canada through real-life <span class="keep-together">Canadian scenarios.</span></h2>
       <p class="launch-copy">為中文使用者設計的 TEF Canada 法文情境練習工具。</p>
       <p class="launch-copy">從零開始的 TEF Canada 情境入門；更高程度內容陸續推出。</p>
       <p class="launch-copy">French Quest helps TEF Canada learners practice everyday French for real situations: ordering coffee, shopping for groceries, and visiting a bank.</p>
@@ -814,7 +950,7 @@ function renderHome() {
       </div>
       <div class="actions launch-actions">
         <button class="primary-btn" id="heroStartMission" ${state.missionLoaded ? "" : "disabled"}>開始第一個任務</button>
-        <button class="secondary-btn" data-action="waitlist">加入搶先體驗</button>
+        <button class="secondary-btn" data-action="waitlist">接收新任務通知</button>
       </div>
     </section>
 
@@ -838,7 +974,7 @@ function renderHome() {
           <div class="route-stop ready">
             <div class="route-icon" aria-hidden="true">CUP</div>
             <p class="route-name">Coffee Shop Mission</p>
-            <span class="route-state">Ready</span>
+            <button class="route-go" data-mission-launch="coffee_shop" data-mission-action="${coffeeCardCta.toLowerCase()}" type="button">${coffeeCardCta}</button>
           </div>
           <div class="route-arrow" aria-hidden="true">|</div>
           <div class="route-stop ${isGroceryPlayable ? "ready" : ""}">
@@ -852,35 +988,52 @@ function renderHome() {
                 <li>reusable bags</li>
               </ul>
             </div>
-            <span class="route-state">${isGroceryPlayable ? "Ready" : "Coming Soon"}</span>
+            ${isGroceryPlayable
+              ? `<button class="route-go" data-mission-launch="grocery_store" data-mission-action="${groceryCardCta.toLowerCase()}" type="button">${groceryCardCta}</button>`
+              : `<span class="route-state">Coming Soon</span>`}
           </div>
-          <div class="route-arrow" aria-hidden="true">|</div>
-          <div class="route-stop">
-            <div class="route-icon" aria-hidden="true">$</div>
-            <div>
-              <p class="route-name">Banking</p>
-              <p class="route-preview">Practice French for everyday banking situations, account services, and questions at the service counter.</p>
-              <ul class="route-preview-list">
-                <li>appointments</li>
-                <li>cards and accounts</li>
-                <li>documents</li>
-              </ul>
+          ${isBankingVisible ? `
+            <div class="route-arrow" aria-hidden="true">|</div>
+            <div class="route-stop ready">
+              <div class="route-icon" aria-hidden="true">$</div>
+              <div>
+                <p class="route-name">Banking</p>
+                <p class="route-preview">Practice French for everyday banking situations, account services, and questions at the service counter.</p>
+                <ul class="route-preview-list">
+                  <li>appointments</li>
+                  <li>cards and accounts</li>
+                  <li>documents</li>
+                </ul>
+              </div>
+              <button class="route-go" data-mission-launch="banking" data-mission-action="${bankingCardCta.toLowerCase()}" type="button">${bankingCardCta}</button>
             </div>
-            <span class="route-state">Coming Soon</span>
+          ` : ""}
+          <div class="route-arrow" aria-hidden="true">|</div>
+          <div class="route-stop ${isRentingVisible ? "ready" : ""}">
+            <div class="route-icon" aria-hidden="true">APT</div>
+            <div>
+              <p class="route-name">Renting an Apartment</p>
+              <p class="route-preview">Practice French for apartment viewings, rent, utilities, and communicating with a landlord.</p>
+            </div>
+            ${isRentingVisible
+              ? `<button class="route-go" data-mission-launch="renting_apartment" data-mission-action="${rentingCardCta.toLowerCase()}" type="button">${rentingCardCta}</button>`
+              : `<span class="route-state">Coming Soon</span>`}
           </div>
         </div>
 
-        <div class="actions">
-          ${missionId === "coffee_shop" && resumeLabel
-            ? `<button class="primary-btn" id="continueMission">${resumeLabel}</button>`
-            : `<button class="primary-btn" id="startCoffeeMission">開始 Coffee Shop 任務</button>`}
-          ${isGroceryPlayable ? `<button class="primary-btn" id="startGroceryMission">開始 Grocery Store 任務</button>` : ""}
-          ${lastMissionAttempt ? `<button class="secondary-btn" id="retakeMission">重新挑戰 ${currentMissionLabel}</button>` : ""}
-          ${reviewCount ? `<button class="secondary-btn" id="reviewMission">複習 ${reviewCount} 題待加強</button>` : ""}
-        </div>
+        ${reviewCount ? `<div class="mission-secondary-actions">
+          <button class="secondary-btn" id="reviewMission">複習 ${reviewCount} 題待加強</button>
+        </div>` : ""}
       </div>
 
       <div class="panel progress-panel" style="display: flex; flex-direction: column; gap: 16px;">
+        <div class="stat-card">
+          <span class="stat-label">My Vocabulary</span>
+          <strong>${loadSavedVocabulary().length}</strong>
+          <p class="next-step">收藏你想再複習的單字，建立自己的單字清單。</p>
+          <p class="next-step">答題後點選 ☆ 即可收藏。</p>
+          <button class="route-go vocabulary-cta" id="openMyVocabulary" type="button">My Vocabulary</button>
+        </div>
         <div class="stat-card">
           <span class="stat-label">Total XP</span>
           <strong>${state.progress.totalXp || 0}</strong>
@@ -915,13 +1068,6 @@ function renderHome() {
             <p class="next-step">${formatDateTime(lastReviewAttempt.completedAt)} · Wrong: ${lastReviewAttempt.wrongCount} · Guessed: ${lastReviewAttempt.guessedCount} · Time: ${formatDuration(lastReviewAttempt.totalTimeMs)}</p>
           </div>
         ` : ""}
-        <div class="stat-card">
-          <span class="stat-label">My Vocabulary</span>
-          <strong>${loadSavedVocabulary().length}</strong>
-          <p class="next-step">收藏你想再複習的單字，建立自己的單字清單。</p>
-          <p class="next-step">答題後點選 ☆ 即可收藏。</p>
-          <button class="secondary-btn compact-btn" id="openMyVocabulary" type="button">My Vocabulary</button>
-        </div>
       </div>
     </section>
 
@@ -933,15 +1079,22 @@ function renderHome() {
         <p>French Quest is for learners who want more than grammar drills. Each mission uses simple real-life situations to practice vocabulary, reading, responses, and test-style thinking.</p>
       </div>
 
+      <div class="panel info-panel roadmap-teaser">
+        <p class="eyebrow">Roadmap</p>
+        <h2>Listening Practice</h2>
+        <p>Train your TEF listening skills with real-life audio scenarios.</p>
+        <span class="route-state">Coming Soon</span>
+      </div>
+
       <div class="panel info-panel">
-        <p class="eyebrow">Early Access</p>
-        <h2>Get new missions when they launch.</h2>
-        <p>Grocery Store is now available. Banking is coming next. Join the early access list to get updates when new TEF practice missions are added.</p>
-        <p>目前 Coffee Shop 與 Grocery Store 開放免費體驗；更多任務與進階功能將陸續推出。</p>
-        <p>本站僅記錄匿名使用統計，不包含姓名或 Email，用來提升內容與使用體驗。</p>
+        <p class="eyebrow">Mission Updates</p>
+        <h2>More missions are on the way.</h2>
+        <p>Coffee Shop, Grocery Store, and Banking are now available free. Join the update list to hear when new TEF practice missions are added.</p>
+        <p>目前 Coffee Shop、Grocery Store 與 Banking 開放免費體驗；更多任務將陸續推出。</p>
+        <p>本站會記錄不含姓名或 Email 的使用統計，用來改善內容與使用體驗。</p>
         <p>Your email will only be used for French Quest updates. 有任何問題，歡迎來信 <a href="mailto:bonjour.frenchquest@gmail.com">bonjour.frenchquest@gmail.com</a>。</p>
         <div class="actions">
-          <button class="primary-btn" data-action="waitlist">加入搶先體驗名單</button>
+          <button class="primary-btn" data-action="waitlist">接收新任務通知</button>
         </div>
       </div>
 
@@ -958,17 +1111,18 @@ function renderHome() {
 
   if (state.missionLoaded) {
     document.getElementById("heroStartMission").addEventListener("click", () => startOrOpenMission(missionId, { randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
-    const continueButton = document.getElementById("continueMission");
-    if (continueButton) continueButton.addEventListener("click", () => startOrOpenMission(missionId, { randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
-
-    const coffeeButton = document.getElementById("startCoffeeMission");
-    if (coffeeButton) coffeeButton.addEventListener("click", () => startOrOpenMission("coffee_shop", { randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
-
-    const groceryButton = document.getElementById("startGroceryMission");
-    if (groceryButton) groceryButton.addEventListener("click", () => startOrOpenMission("grocery_store", { randomizeQuestions: false, randomizeOptions: false, reviewMode: false }));
-
-    const retakeButton = document.getElementById("retakeMission");
-    if (retakeButton) retakeButton.addEventListener("click", () => startMission({ randomizeQuestions: true, randomizeOptions: true, reviewMode: false }));
+    document.querySelectorAll("[data-mission-launch]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const isRetake = button.dataset.missionAction === "retake";
+        startOrOpenMission(button.dataset.missionLaunch, {
+          forceNew: isRetake,
+          retake: isRetake,
+          randomizeQuestions: isRetake,
+          randomizeOptions: isRetake,
+          reviewMode: false
+        });
+      });
+    });
 
     const reviewButton = document.getElementById("reviewMission");
     if (reviewButton) reviewButton.addEventListener("click", startReviewMode);
@@ -1096,12 +1250,12 @@ function renderQuestion() {
         <div class="meter-fill" style="--value: ${progress}%"></div>
       </div>
 
-      <p class="question-text">${question.question}</p>
+      <p class="question-text">${formatFrenchNumberSpacing(question.question)}</p>
 
       <div class="options">
         ${question.options.map((option, index) => `
           <button class="option ${state.selectedAnswer === index ? "selected" : ""}" data-option="${index}" type="button">
-            ${option}
+            ${formatFrenchNumberSpacing(option)}
           </button>
         `).join("")}
       </div>
@@ -1172,8 +1326,8 @@ function renderFeedback() {
           <p class="eyebrow">${state.reviewMode ? "Review Mode" : `${missionConfig.sequenceLabel}: ${missionConfig.title}`}</p>
           <h2>${answer.isCorrect ? "Correct" : "Incorrect"}</h2>
           <div class="review-line">
-            <p><strong>Question:</strong> ${question.question}</p>
-            <p><strong>Your answer:</strong> ${selectedAnswer}</p>
+            <p><strong>Question:</strong> ${formatFrenchNumberSpacing(question.question)}</p>
+            <p><strong>Your answer:</strong> ${formatFrenchNumberSpacing(selectedAnswer)}</p>
             <p><strong>Time spent:</strong> ${formatDuration(answer.timeSpentMs)}</p>
             ${answer.guessed ? `<p><strong>Marked:</strong> Guessed / Not sure</p>` : ""}
           </div>
@@ -1185,12 +1339,12 @@ function renderFeedback() {
         +${earnedXp} XP
       </div>
 
-      ${answer.isCorrect ? "" : `<p><strong>Correct answer:</strong> ${correctAnswer}</p>`}
+      ${answer.isCorrect ? "" : `<p><strong>Correct answer:</strong> ${formatFrenchNumberSpacing(correctAnswer)}</p>`}
 
       <div class="options" aria-label="Answered options">
         ${question.options.map((option, index) => {
           const className = index === correctIndex ? "correct" : index === answer.selectedIndex ? "wrong" : "";
-          return `<button class="option ${className}" type="button" disabled>${option}</button>`;
+          return `<button class="option ${className}" type="button" disabled>${formatFrenchNumberSpacing(option)}</button>`;
         }).join("")}
       </div>
 
@@ -1385,11 +1539,11 @@ function renderComplete() {
   const skillTiles = getSkillPerformanceTiles(calculateSkillPerformance(state.answers), completeSkillPerformanceLabels);
   const reviewCount = getReviewQuestions().length;
   const nextMissionId = missionConfig.nextMissionId;
-  const canStartNextMission = Boolean(nextMissionId && missionConfigs[nextMissionId] && isMissionPlayable(nextMissionId));
+  const canStartNextMission = Boolean(nextMissionId && missionConfigs[nextMissionId] && isMissionVisibleOnHome(nextMissionId));
   const nextStepText = reviewCount === 0
     ? `太好了！這次任務的待加強題目都已經複習完成。下一個任務：${missionConfig.nextMissionLabel}`
     : "下一步：複習答錯與不確定的題目，強化你的 TEF 情境理解。";
-  const showCompletionCtas = !isReviewEnvironment;
+  const showCompletionCtas = !isReviewEnvironment && missionId !== "banking";
 
   app.innerHTML = `
     <section class="panel complete-card">

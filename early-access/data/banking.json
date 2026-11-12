@@ -1,0 +1,502 @@
+[
+  {
+    "id": "BK001",
+    "mission": "banking",
+    "part": "Part 1: Quick Confidence Warm-up",
+    "question_type": "vocabulary",
+    "question": "Vous dites : « Je voudrais ouvrir un compte. » What do you want to do?",
+    "options": [
+      "Check your account balance",
+      "Close an account",
+      "Open an account",
+      "Make an appointment"
+    ],
+    "answer": "C",
+    "vocabulary": "compte = 帳戶；ouvrir un compte = 開戶",
+    "pattern": "Je voudrais + 動詞原形... = 我想要……",
+    "tef_tip": "看到 Je voudrais 時，先找後面的動作。這題要辨認 ouvrir，不要只看到 compte 就作答。",
+    "skill": "vocabulary",
+    "difficulty": "A1",
+    "status": "draft"
+  },
+  {
+    "id": "BK002",
+    "mission": "banking",
+    "part": "Part 1: Quick Confidence Warm-up",
+    "question_type": "vocabulary",
+    "question": "Un employé vous demande : « Avez-vous une carte de débit ? » What does the employee want to know?",
+    "options": [
+      "Whether you want to withdraw cash",
+      "Whether you have a debit card",
+      "Whether you remember your PIN",
+      "Whether you have identification"
+    ],
+    "answer": "B",
+    "vocabulary": "carte de débit = 金融卡／簽帳金融卡",
+    "pattern": "Avez-vous + un / une + 名詞 ? = 您有……嗎？",
+    "tef_tip": "Avez-vous... ? 是在確認你有沒有某樣東西。先抓名詞 carte de débit，不要把問題誤判成要你執行某個銀行動作。",
+    "skill": "vocabulary",
+    "difficulty": "A1",
+    "status": "draft"
+  },
+  {
+    "id": "BK003",
+    "mission": "banking",
+    "part": "Part 1: Quick Confidence Warm-up",
+    "question_type": "situation",
+    "question": "You see this sign: « Guichet automatique hors service. » What does it mean?",
+    "options": [
+      "The ATM accepts deposits only",
+      "The bank is closed for the day",
+      "The ATM is not working",
+      "Fees apply to withdrawals"
+    ],
+    "answer": "C",
+    "vocabulary": "guichet automatique = 自動提款機／ATM；hors service = 暫停使用／故障",
+    "pattern": "être hors service = 無法使用／故障",
+    "tef_tip": "先確認 hors service 描述的是哪個東西。這裡不能使用的是 guichet automatique，不代表整間銀行關門。",
+    "skill": "situation",
+    "difficulty": "A1",
+    "status": "draft"
+  },
+  {
+    "id": "BK004",
+    "mission": "banking",
+    "part": "Part 1: Quick Confidence Warm-up",
+    "question_type": "best_response",
+    "question": "The employee asks: « Vous avez rendez-vous ? » Your appointment is at 14 h. What is the best response?",
+    "options": [
+      "Non, je voudrais ouvrir un compte.",
+      "Oui, je dois retirer de l’argent.",
+      "J’attends devant le guichet automatique.",
+      "Oui, à 14 h."
+    ],
+    "answer": "D",
+    "vocabulary": "avoir rendez-vous = 有預約",
+    "pattern": "J’ai rendez-vous à + 時間（幾點）. = 我在……點有預約。",
+    "tef_tip": "先判斷對方正在確認什麼。這裡問的是是否有預約，所以回答要直接確認預約，時間則是補充資訊。",
+    "skill": "expression",
+    "difficulty": "A1",
+    "status": "draft"
+  },
+  {
+    "id": "BK005",
+    "mission": "banking",
+    "part": "Part 1: Quick Confidence Warm-up",
+    "question_type": "reading",
+    "question": "You see: « Frais mensuels : 4,95 $. » How much do you pay each month?",
+    "options": [
+      "2,95 $",
+      "4,00 $",
+      "4,95 $",
+      "9,95 $"
+    ],
+    "answer": "C",
+    "vocabulary": "frais = 費用；frais mensuels = 每月費用",
+    "pattern": "des frais mensuels de + 金額 = 每月費用為……\ndes frais mensuels de 4,95 $",
+    "tef_tip": "看到金額時，先確認它代表什麼。這題問的是 each month，因此要找和 mensuels 對應的金額。",
+    "skill": "reading",
+    "difficulty": "A1",
+    "status": "draft"
+  },
+  {
+    "id": "BK006",
+    "mission": "banking",
+    "part": "Part 2: Signs & Notices",
+    "question_type": "sign_understanding",
+    "question": "Dépôts temporairement indisponibles au guichet automatique. Les retraits sont toujours possibles. What can the customer still do at the ATM?",
+    "options": [
+      "Deposit money",
+      "Withdraw money",
+      "Make a deposit and a withdrawal",
+      "Make deposits only"
+    ],
+    "answer": "B",
+    "vocabulary": "dépôt = 存款；retrait = 提款；indisponible = 暫時無法使用／不提供",
+    "pattern": "être toujours possible = 仍然可以",
+    "tef_tip": "先找表示「還可以做」的資訊。看到 toujours possibles，就看它前面的服務是什麼。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "BK007",
+    "mission": "banking",
+    "part": "Part 2: Signs & Notices",
+    "question_type": "sign_understanding",
+    "question": "Service sans rendez-vous de 9 h à 12 h. Après 12 h, sur rendez-vous seulement. A customer arrives at 14 h without an appointment. What should they understand?",
+    "options": [
+      "They can receive service immediately.",
+      "They need an appointment.",
+      "The branch is closed.",
+      "They can only use the ATM."
+    ],
+    "answer": "B",
+    "vocabulary": "sans rendez-vous = 不需預約；sur rendez-vous seulement = 僅限預約",
+    "pattern": "de + 時間 + à + 時間 = 從幾點到幾點",
+    "tef_tip": "先看題目中的時間 14 h，再回公告找 12 h 之後的規則；不用整段都讀懂。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "BK008",
+    "mission": "banking",
+    "part": "Part 2: Signs & Notices",
+    "question_type": "sign_understanding",
+    "question": "Limite quotidienne de retrait au guichet automatique : 500 $. A customer wants to withdraw 700 $ from the ATM today. What should they understand?",
+    "options": [
+      "They can withdraw up to 500 $.",
+      "They can withdraw the full 700 $.",
+      "They must withdraw at least 500 $.",
+      "They can withdraw 700 $ if they make two transactions."
+    ],
+    "answer": "A",
+    "vocabulary": "limite quotidienne = 每日限額；retrait = 提款",
+    "pattern": "limite de + 金額 = ……的限額",
+    "tef_tip": "先看題目要提款多少，再回公告找限額數字；比較 700 $ 和 500 $ 就能作答。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "BK009",
+    "mission": "banking",
+    "part": "Part 2: Signs & Notices",
+    "question_type": "sign_understanding",
+    "question": "Frais de 3 $ pour les retraits effectués à un guichet d’une autre banque. Quel retrait entraîne des frais de 3 $ ?",
+    "options": [
+      "Un retrait au guichet automatique de votre propre banque.",
+      "Un retrait au comptoir avec un employé.",
+      "Un retrait à un guichet d’une autre banque.",
+      "Un dépôt à un guichet automatique."
+    ],
+    "answer": "C",
+    "vocabulary": "frais = 費用；une autre banque = 另一家銀行",
+    "pattern": "frais de + montant pour + action = 做某件事需支付……費用",
+    "tef_tip": "先看題目問「哪一種提款」，再回句子找收費條件。重點不是 3 $，而是 d’une autre banque。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "BK010",
+    "mission": "banking",
+    "part": "Part 2: Signs & Notices",
+    "question_type": "sign_understanding",
+    "question": "Pour ouvrir un compte, veuillez présenter deux pièces d’identité, dont une avec photo. Que doit apporter le client ?",
+    "options": [
+      "Une seule pièce d’identité avec photo.",
+      "Deux pièces d’identité, dont une avec photo.",
+      "Deux cartes bancaires.",
+      "Une pièce d’identité et un relevé bancaire."
+    ],
+    "answer": "B",
+    "vocabulary": "pièce d’identité = 身分證明文件；avec photo = 附照片的",
+    "pattern": "dont une... = 其中一份……",
+    "tef_tip": "先抓數量 deux，再找附加條件 une avec photo。答案必須同時符合兩個條件。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "BK011",
+    "mission": "banking",
+    "part": "Part 2: Signs & Notices",
+    "question_type": "sign_understanding",
+    "question": "Heures d’ouverture — Lundi–mercredi : 9 h – 17 h；Jeudi : 9 h – 19 h；Vendredi : 9 h – 17 h. Il est jeudi à 18 h. La succursale est-elle ouverte ?",
+    "options": [
+      "Oui, jusqu’à 19 h.",
+      "Oui, jusqu’à 17 h.",
+      "Non, elle ferme à 18 h.",
+      "Non, elle est fermée le jeudi."
+    ],
+    "answer": "A",
+    "vocabulary": "succursale = 分行；heures d’ouverture = 營業時間",
+    "pattern": "être ouvert jusqu’à + 時間 = 營業到……",
+    "tef_tip": "表格題先看題目，再回表格找資訊。這題先找 jeudi，再看 18 h 是否在營業時間內。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "BK012",
+    "mission": "banking",
+    "part": "Part 2: Signs & Notices",
+    "question_type": "sign_understanding",
+    "question": "Après trois NIP incorrects, votre carte sera bloquée. Veuillez communiquer avec votre banque. Que doit faire le client si sa carte est bloquée ?",
+    "options": [
+      "Essayer le même NIP plusieurs fois.",
+      "Ouvrir immédiatement un nouveau compte.",
+      "Communiquer avec sa banque.",
+      "Utiliser une carte de crédit à la place."
+    ],
+    "answer": "C",
+    "vocabulary": "NIP = 個人識別碼／PIN；bloqué(e) = 被鎖定",
+    "pattern": "communiquer avec + personne / organisme = 聯絡……",
+    "tef_tip": "題目問「該怎麼做」時，回原文找行動指示。這題直接找 Veuillez + 動作。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "BK013",
+    "mission": "banking",
+    "part": "Part 2: Signs & Notices",
+    "question_type": "sign_understanding",
+    "question": "Les dépôts effectués après 18 h seront traités le jour ouvrable suivant. Vous faites un dépôt à 19 h. Quand sera-t-il traité ?",
+    "options": [
+      "Immédiatement",
+      "Avant 18 h le même jour",
+      "Le jour ouvrable suivant",
+      "Une semaine plus tard"
+    ],
+    "answer": "C",
+    "vocabulary": "être traité = 被處理；jour ouvrable = 工作日／營業日",
+    "pattern": "après + 時間 = 在……之後；le jour ouvrable suivant = 下一個工作日",
+    "tef_tip": "先比較題目的 19 h 和規則中的 18 h。時間超過界線，就套用 après 18 h 的規則。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "BK014",
+    "mission": "banking",
+    "part": "Part 3: Staff-Customer Interaction",
+    "question_type": "best_response",
+    "question": "Vous voulez déposer un chèque. L’employé demande : « Que puis-je faire pour vous ? » Quelle est la meilleure réponse ?",
+    "options": [
+      "Je voudrais déposer ce chèque.",
+      "Je voudrais retirer 200 $.",
+      "Je voudrais remplacer ma carte.",
+      "Je voudrais prendre rendez-vous."
+    ],
+    "answer": "A",
+    "vocabulary": "déposer un chèque = 存入支票",
+    "pattern": "Je voudrais + 動詞原形... = 我想要……",
+    "tef_tip": "先看題目告訴你的目的：déposer un chèque。再找直接表達同一個目的的回答。",
+    "skill": "expression",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "BK015",
+    "mission": "banking",
+    "part": "Part 3: Staff-Customer Interaction",
+    "question_type": "best_response",
+    "question": "Employé : « Votre carte a été perdue ou volée ? » Vous avez perdu votre carte. Quelle est la meilleure réponse ?",
+    "options": [
+      "Elle expire bientôt.",
+      "Je l’ai perdue.",
+      "Je voudrais l’utiliser.",
+      "Elle est au guichet automatique."
+    ],
+    "answer": "B",
+    "vocabulary": "perdu(e) = 遺失的；volé(e) = 被偷的",
+    "pattern": "J’ai perdu + 名詞 = 我弄丟了……\nJe l’ai perdue.",
+    "tef_tip": "問題給了兩個可能：perdue 或 volée。先看情境是哪一個，再找對應回答。",
+    "skill": "expression",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "BK016",
+    "mission": "banking",
+    "part": "Part 3: Staff-Customer Interaction",
+    "question_type": "best_response",
+    "question": "Employé : « Voulez-vous recevoir vos relevés par la poste ou en ligne ? » Vous préférez les recevoir en ligne. Que répondez-vous ?",
+    "options": [
+      "Par la poste, s’il vous plaît.",
+      "Je n’ai pas de carte.",
+      "En ligne, s’il vous plaît.",
+      "À la succursale demain."
+    ],
+    "answer": "C",
+    "vocabulary": "relevé = 對帳單；par la poste = 郵寄；en ligne = 線上",
+    "pattern": "Je préfère + 動詞原形... = 我比較偏好／比較想……\nJe préfère les recevoir en ligne.",
+    "tef_tip": "看到 ou，先找兩個選項。題目已告訴你偏好 en ligne，直接找對應的回答。",
+    "skill": "expression",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "BK017",
+    "mission": "banking",
+    "part": "Part 3: Staff-Customer Interaction",
+    "question_type": "best_response",
+    "question": "Vous voulez retirer de l’argent de votre compte-chèques. Employé : « De quel compte souhaitez-vous retirer l’argent ? » Que répondez-vous ?",
+    "options": [
+      "De mon compte d’épargne.",
+      "De mon compte de placement.",
+      "De mon compte-chèques.",
+      "Avec ma carte de débit."
+    ],
+    "answer": "C",
+    "vocabulary": "compte-chèques = 支票帳戶；compte d’épargne = 儲蓄帳戶",
+    "pattern": "de mon / ma + 名詞 = 從我的……",
+    "tef_tip": "看到 De quel compte... ?，先確認題目在問「哪個帳戶」，再回情境找指定的帳戶名稱。",
+    "skill": "expression",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "BK018",
+    "mission": "banking",
+    "part": "Part 3: Staff-Customer Interaction",
+    "question_type": "best_response",
+    "question": "Vous voulez savoir si votre compte comporte des frais chaque mois. Quelle question posez-vous ?",
+    "options": [
+      "Où est le guichet automatique ?",
+      "Est-ce qu’il y a des frais mensuels ?",
+      "Puis-je déposer ce chèque ?",
+      "Quand est-ce que ma carte expire ?"
+    ],
+    "answer": "B",
+    "vocabulary": "frais mensuels = 每月費用",
+    "pattern": "Est-ce qu’il y a + 名詞 ? = 有……嗎？",
+    "tef_tip": "先抓題目中的需求 frais chaque mois，再找含有相同概念 frais mensuels 的問題。",
+    "skill": "expression",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "BK019",
+    "mission": "banking",
+    "part": "Part 3: Staff-Customer Interaction",
+    "question_type": "best_response",
+    "question": "Votre carte est bloquée. L’employé demande : « Pouvez-vous me montrer une pièce d’identité ? » Vous avez votre permis de conduire. Quelle est la meilleure réponse ?",
+    "options": [
+      "Oui, voici ma carte de débit.",
+      "Oui, voici mon relevé bancaire.",
+      "Oui, voici mon permis de conduire.",
+      "Oui, voici ma carte de crédit."
+    ],
+    "answer": "C",
+    "vocabulary": "pièce d’identité = 身分證明文件；permis de conduire = 駕照",
+    "pattern": "Voici + 名詞 = 這是……／給您……",
+    "tef_tip": "先看店員要求什麼：une pièce d’identité。再找選項中可以提供身分證明的東西。",
+    "skill": "expression",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "BK020",
+    "mission": "banking",
+    "part": "Part 4: Mini Reading Documents",
+    "question_type": "reading",
+    "question": "CONFIRMATION DE RENDEZ-VOUS — Date : 15 octobre；Heure : 14 h 30；Lieu : Succursale du centre-ville；Veuillez arriver 10 minutes à l’avance avec une pièce d’identité. À quelle heure le client devrait-il arriver ?",
+    "options": [
+      "14 h",
+      "14 h 20",
+      "14 h 30",
+      "14 h 40"
+    ],
+    "answer": "B",
+    "vocabulary": "à l’avance = 提前；pièce d’identité = 身分證明文件",
+    "pattern": "X minutes à l’avance = 提前 X 分鐘",
+    "tef_tip": "先看題目問的是「到達時間」，再找 rendez-vous 的時間和 10 minutes à l’avance；只需要算這兩個資訊。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "BK021",
+    "mission": "banking",
+    "part": "Part 4: Mini Reading Documents",
+    "question_type": "reading",
+    "question": "COMPTE COURANT — Frais mensuels : 6,95 $；12 transactions incluses par mois；Transaction supplémentaire : 1,25 $. Marc fait 14 transactions ce mois-ci. Combien paiera-t-il pour les transactions supplémentaires ?",
+    "options": [
+      "1,25 $",
+      "2,50 $",
+      "6,95 $",
+      "9,45 $"
+    ],
+    "answer": "B",
+    "vocabulary": "transaction incluse = 已包含的交易；supplémentaire = 額外的",
+    "pattern": "X inclus(es) = 包含 X 個／次",
+    "tef_tip": "先看題目只問「額外交易費」。14 次中有 12 次已包含，所以只計算多出的 2 次。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "BK022",
+    "mission": "banking",
+    "part": "Part 4: Mini Reading Documents",
+    "question_type": "reading",
+    "question": "VIREMENT ÉLECTRONIQUE — Limite quotidienne : 3 000 $；Frais : 1,00 $ par virement. Julie veut envoyer 3 500 $ aujourd’hui. Que doit-elle comprendre ?",
+    "options": [
+      "Elle peut envoyer 3 500 $ en un seul virement.",
+      "Elle doit payer seulement 1,00 $ de plus.",
+      "Le montant dépasse la limite quotidienne.",
+      "Elle peut envoyer 3 500 $ si elle fait deux virements."
+    ],
+    "answer": "C",
+    "vocabulary": "virement électronique = 電子轉帳；dépasser = 超過",
+    "pattern": "dépasser la limite = 超過限額",
+    "tef_tip": "先比較題目的 3 500 $ 和文件中的 limite 3 000 $。不用先處理其他費用資訊。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "BK023",
+    "mission": "banking",
+    "part": "Part 4: Mini Reading Documents",
+    "question_type": "reading",
+    "question": "ACTIVITÉ DU COMPTE — 3 oct. — Achat : −24,50 $；4 oct. — Dépôt : +200,00 $；5 oct. — Retrait : −60,00 $. Quelle opération a augmenté le solde du compte ?",
+    "options": [
+      "L’achat du 3 octobre",
+      "Le dépôt du 4 octobre",
+      "Le retrait du 5 octobre",
+      "Les trois opérations"
+    ],
+    "answer": "B",
+    "vocabulary": "solde = 帳戶餘額；dépôt = 存款；retrait = 提款",
+    "pattern": "augmenter le solde = 增加帳戶餘額",
+    "tef_tip": "題目問哪筆交易讓餘額增加，先看 + / − 符號；不需要每個單字都看懂。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "BK024",
+    "mission": "banking",
+    "part": "Part 4: Mini Reading Documents",
+    "question_type": "reading",
+    "question": "NOUVELLE CARTE DE DÉBIT — Votre nouvelle carte est prête. Activez-la avant le 30 novembre. Après l’activation, votre ancienne carte ne fonctionnera plus. Que se passera-t-il après l’activation de la nouvelle carte ?",
+    "options": [
+      "Les deux cartes fonctionneront.",
+      "La nouvelle carte sera bloquée.",
+      "L’ancienne carte cessera de fonctionner.",
+      "Le client devra ouvrir un nouveau compte."
+    ],
+    "answer": "C",
+    "vocabulary": "activer = 啟用；ancienne carte = 舊卡",
+    "pattern": "ne... plus = 不再……",
+    "tef_tip": "先抓題目中的 après l’activation，再回文件找同樣的時間訊號。答案就在 Après l’activation 後面。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "BK025",
+    "mission": "banking",
+    "part": "Part 4: Mini Reading Documents",
+    "question_type": "reading",
+    "question": "ALERTE DE SÉCURITÉ — Transaction de 89,50 $ le 12 octobre. Vous ne reconnaissez pas cette transaction ? Ne répondez pas à ce message. Communiquez immédiatement avec votre banque. Que doit faire le client s’il ne reconnaît pas la transaction ?",
+    "options": [
+      "Répondre au message.",
+      "Attendre quelques jours.",
+      "Faire une autre transaction.",
+      "Contacter sa banque tout de suite."
+    ],
+    "answer": "D",
+    "vocabulary": "reconnaître une transaction = 認得／確認某筆交易；alerte de sécurité = 安全警示",
+    "pattern": "communiquer immédiatement avec + 人／機構 = 立即聯絡……",
+    "tef_tip": "題目問「該怎麼做」，直接找文件中的行動指示。Ne... pas 是不要做的事，Communiquez... 才是要採取的行動。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  }
+]

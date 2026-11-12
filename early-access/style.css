@@ -291,11 +291,48 @@ h1 {
   font-weight: 800;
 }
 
+.route-go {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--teal);
+  border-radius: 999px;
+  background: var(--teal);
+  color: #ffffff;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.route-go:hover {
+  background: var(--teal-dark);
+}
+
+.vocabulary-cta {
+  align-self: flex-start;
+}
+
+.roadmap-teaser {
+  opacity: 0.82;
+}
+
 .route-arrow {
   padding-left: 21px;
   color: var(--red-dark);
   font-size: 1.35rem;
   line-height: 1;
+}
+
+.mission-secondary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.mission-secondary-actions .secondary-btn {
+  flex: 1 1 220px;
+  min-width: 0;
 }
 
 .primary-btn,
@@ -614,20 +651,45 @@ h1 {
     grid-column: 2;
   }
 
+  .route-go {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .mission-secondary-actions .secondary-btn {
+    flex-basis: 100%;
+  }
+
   .route-preview,
   .route-preview-list {
     grid-column: 2;
   }
 
-  .vocabulary-feedback-item,
-  .vocabulary-row {
+  .vocabulary-feedback-item {
     align-items: flex-start;
     flex-direction: column;
   }
 
-  .vocabulary-star,
-  .vocabulary-row .secondary-btn {
+  .vocabulary-star {
     width: 100%;
+  }
+
+  .vocabulary-row {
+    align-items: flex-start;
+    flex-direction: row;
+  }
+
+  .vocabulary-row > div {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .vocabulary-row .secondary-btn {
+    flex: 0 0 auto;
+    width: auto;
+    min-height: 32px;
+    padding: 0 10px;
+    font-size: 0.86rem;
   }
 }
 

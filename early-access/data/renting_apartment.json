@@ -1,0 +1,502 @@
+[
+  {
+    "id": "RA001",
+    "mission": "renting_apartment",
+    "part": "Part 1: Quick Confidence Warm-up",
+    "question_type": "vocabulary",
+    "question": "You see this sign: « À louer ». What does it mean?",
+    "options": [
+      "The apartment is already rented.",
+      "The apartment is for sale.",
+      "The apartment is for rent.",
+      "The apartment is being renovated."
+    ],
+    "answer": "C",
+    "vocabulary": "à louer = 出租中／待出租",
+    "pattern": "名詞 + à louer = ……出租；Example: Appartement à louer. = 公寓出租。",
+    "tef_tip": "看到告示題先找最醒目的關鍵詞。這題只要辨認 à louer 就能作答。",
+    "skill": "vocabulary",
+    "difficulty": "A1",
+    "status": "draft"
+  },
+  {
+    "id": "RA002",
+    "mission": "renting_apartment",
+    "part": "Part 1: Quick Confidence Warm-up",
+    "question_type": "vocabulary",
+    "question": "You see this listing: « Loyer : 1 800 $ par mois. Stationnement : 75 $ par mois. » What does 1 800 $ refer to?",
+    "options": [
+      "The monthly rent",
+      "The parking fee",
+      "The total monthly cost including parking",
+      "A one-time move-in fee"
+    ],
+    "answer": "A",
+    "vocabulary": "loyer = 租金；stationnement = 停車位／停車",
+    "pattern": "Le loyer est de + 金額 par mois. = 每月租金是……",
+    "tef_tip": "同一則廣告可能有不只一個金額。先看每個金額前面的標籤，再判斷題目問的是哪一筆費用。",
+    "skill": "vocabulary / reading",
+    "difficulty": "A1",
+    "status": "draft"
+  },
+  {
+    "id": "RA003",
+    "mission": "renting_apartment",
+    "part": "Part 1: Quick Confidence Warm-up",
+    "question_type": "vocabulary",
+    "question": "The listing says: « Appartement meublé. » What does this tell you?",
+    "options": [
+      "Utilities are included.",
+      "Pets are allowed.",
+      "Parking is included.",
+      "The apartment includes furniture."
+    ],
+    "answer": "D",
+    "vocabulary": "meublé = 附家具的；non meublé = 無附家具的",
+    "pattern": "appartement meublé / non meublé = 附家具／無附家具的公寓",
+    "tef_tip": "先確認 meublé 描述的是房屋本身。它是在說家具，不是在說費用或租屋規定。",
+    "skill": "vocabulary",
+    "difficulty": "A1",
+    "status": "draft"
+  },
+  {
+    "id": "RA004",
+    "mission": "renting_apartment",
+    "part": "Part 1: Quick Confidence Warm-up",
+    "question_type": "situation",
+    "question": "The listing says: « Disponible à partir du 1er novembre. » When can the tenant move in?",
+    "options": [
+      "Before November 1",
+      "Starting November 1",
+      "Only on November 1",
+      "At the end of November"
+    ],
+    "answer": "B",
+    "vocabulary": "disponible = 可入住的／可使用的；à partir de = 從……開始",
+    "pattern": "disponible à partir du + 日期 = 從……起可入住",
+    "tef_tip": "先找日期，再看 à partir de。這個訊號表示「從這一天開始」，不是只限當天。",
+    "skill": "situation",
+    "difficulty": "A1",
+    "status": "draft"
+  },
+  {
+    "id": "RA005",
+    "mission": "renting_apartment",
+    "part": "Part 1: Quick Confidence Warm-up",
+    "question_type": "best_response",
+    "question": "You have a cat and want to know whether pets are allowed. Which question should you ask?",
+    "options": [
+      "Est-ce que les animaux sont acceptés ?",
+      "Est-ce que le chauffage est inclus ?",
+      "Est-ce que l’appartement est meublé ?",
+      "Est-ce qu’il y a une place de stationnement ?"
+    ],
+    "answer": "A",
+    "vocabulary": "animaux = 動物／寵物；animaux acceptés = 可養寵物",
+    "pattern": "Est-ce que les animaux sont acceptés ? = 可以養寵物嗎？",
+    "tef_tip": "先抓題目真正要確認的資訊：pets are allowed。再找和 animaux 有關的問題，不需要先看懂其他三個租屋問題。",
+    "skill": "expression",
+    "difficulty": "A1",
+    "status": "draft"
+  },
+  {
+    "id": "RA006",
+    "mission": "renting_apartment",
+    "part": "Part 2: Listings & Notices",
+    "question_type": "reading",
+    "question": "You see this listing: « Appartement à louer — 2 chambres, 1 salle de bain. » How many bedrooms does the apartment have?",
+    "options": [
+      "Two",
+      "One",
+      "Three",
+      "Four"
+    ],
+    "answer": "A",
+    "vocabulary": "chambre = 臥室；salle de bain = 浴室",
+    "pattern": "appartement de + 數字 + chambre(s) = ……房公寓",
+    "tef_tip": "題目問 bedrooms，就直接回廣告找 chambre(s) 前面的數字，不需要處理其他房屋資訊。",
+    "skill": "reading",
+    "difficulty": "A1+",
+    "status": "draft"
+  },
+  {
+    "id": "RA007",
+    "mission": "renting_apartment",
+    "part": "Part 2: Listings & Notices",
+    "question_type": "reading",
+    "question": "The listing says: « Chauffage et eau inclus. Électricité non incluse. » Which cost does the tenant need to pay separately?",
+    "options": [
+      "Heating",
+      "Water",
+      "Heating and water",
+      "Electricity"
+    ],
+    "answer": "D",
+    "vocabulary": "chauffage = 暖氣；eau = 水費；électricité = 電費；inclus = 已包含",
+    "pattern": "X est inclus(e) / n’est pas inclus(e) = X 已包含／未包含",
+    "tef_tip": "先看題目問的是「要另外付什麼」，再找 non incluse 前面的項目。",
+    "skill": "reading",
+    "difficulty": "A1+",
+    "status": "draft"
+  },
+  {
+    "id": "RA008",
+    "mission": "renting_apartment",
+    "part": "Part 2: Listings & Notices",
+    "question_type": "reading",
+    "question": "The listing says: « Buanderie dans l’immeuble. » What does this tell you?",
+    "options": [
+      "The apartment has a private washing machine.",
+      "There is a laundry area in the building.",
+      "Laundry service is included in the rent.",
+      "There is no laundry available."
+    ],
+    "answer": "B",
+    "vocabulary": "buanderie = 洗衣房；immeuble = 大樓／建築物",
+    "pattern": "dans l’immeuble = 在大樓內",
+    "tef_tip": "先抓地點 dans l’immeuble。它表示設施在整棟大樓裡，不代表就在你的 apartment 裡。",
+    "skill": "reading",
+    "difficulty": "A1+",
+    "status": "draft"
+  },
+  {
+    "id": "RA009",
+    "mission": "renting_apartment",
+    "part": "Part 2: Listings & Notices",
+    "question_type": "reading",
+    "question": "« Stationnement disponible : 90 $ par mois. » Que doit comprendre le locataire ?",
+    "options": [
+      "Le stationnement est inclus dans le loyer.",
+      "Le loyer est de 90 $ par mois.",
+      "Le stationnement coûte 90 $ de plus par mois.",
+      "Le stationnement est gratuit le premier mois."
+    ],
+    "answer": "C",
+    "vocabulary": "stationnement = 停車位／停車；disponible = 可提供的",
+    "pattern": "X coûte + 金額 par mois = X 每月費用為……",
+    "tef_tip": "看到額外金額時，先確認它前面的項目。這題 90 $ 是跟 stationnement 放在一起，不是房租。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "RA010",
+    "mission": "renting_apartment",
+    "part": "Part 2: Listings & Notices",
+    "question_type": "reading",
+    "question": "L’annonce indique : « Animaux acceptés : chats et petits chiens. » Quel animal correspond aux conditions de l’annonce ?",
+    "options": [
+      "Un grand chien",
+      "Un lapin",
+      "Aucun animal",
+      "Un petit chien"
+    ],
+    "answer": "D",
+    "vocabulary": "petit chien = 小型犬；animaux acceptés = 可養寵物",
+    "pattern": "X accepté(s) = 接受／允許 X",
+    "tef_tip": "不要只看到 animaux acceptés 就作答；還要讀冒號後面的限制，確認接受的是哪些動物。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "RA011",
+    "mission": "renting_apartment",
+    "part": "Part 2: Listings & Notices",
+    "question_type": "reading",
+    "question": "VISITES — Samedi : 10 h à 12 h；Dimanche : 14 h à 16 h. Vous êtes libre dimanche à 15 h. Pouvez-vous visiter l’appartement ?",
+    "options": [
+      "Non, les visites sont seulement le samedi.",
+      "Oui, les visites sont possibles le dimanche à 15 h.",
+      "Non, les visites se terminent à 14 h.",
+      "Oui, mais seulement après 16 h."
+    ],
+    "answer": "B",
+    "vocabulary": "visite = 看房／參觀；être libre = 有空",
+    "pattern": "de + 時間 + à + 時間 = 從……到……",
+    "tef_tip": "表格題先看題目中的日期和時間，再回表格找對應那一列；不用先讀完所有時段。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "RA012",
+    "mission": "renting_apartment",
+    "part": "Part 2: Listings & Notices",
+    "question_type": "reading",
+    "question": "Confirmation de visite — Votre visite est prévue le 18 octobre à 17 h 30. Veuillez arriver 5 minutes à l’avance et attendre dans le hall. Que doit faire le visiteur ?",
+    "options": [
+      "Arriver après 17 h 30.",
+      "Attendre devant l’immeuble.",
+      "Arriver un peu avant 17 h 30 et attendre dans le hall.",
+      "Venir le 18 novembre."
+    ],
+    "answer": "C",
+    "vocabulary": "prévu(e) = 安排好的；hall = 大廳；à l’avance = 提前",
+    "pattern": "être prévu(e) à + 時間 = 安排在……時間",
+    "tef_tip": "題目問「該怎麼做」時，優先找 Veuillez + 動作；日期與時間則用來排除錯誤選項。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "RA013",
+    "mission": "renting_apartment",
+    "part": "Part 2: Listings & Notices",
+    "question_type": "reading",
+    "question": "À louer — Appartement 1 chambre；Loyer : 1 650 $ par mois；Chauffage inclus；Électricité non incluse；Disponible le 1er décembre. Quelle affirmation est correcte ?",
+    "options": [
+      "L’appartement a deux chambres.",
+      "L’électricité est incluse dans le loyer.",
+      "L’appartement est disponible en novembre.",
+      "Le chauffage est inclus dans le loyer."
+    ],
+    "answer": "D",
+    "vocabulary": "loyer = 租金；chauffage = 暖氣；électricité = 電費",
+    "pattern": "être inclus(e) dans le loyer = 包含在租金內",
+    "tef_tip": "這種多資訊題先逐一核對選項，不用全文翻譯。看到房型、費用、日期時，一次確認一個資訊點。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "RA014",
+    "mission": "renting_apartment",
+    "part": "Part 3: Landlord / Property Manager Interaction",
+    "question_type": "best_response",
+    "question": "Vous appelez pour prendre rendez-vous afin de visiter l’appartement. Quelle phrase est la plus appropriée ?",
+    "options": [
+      "Je voudrais visiter l’appartement. Est-ce que samedi à 11 h vous convient ?",
+      "Je voudrais savoir quand le loyer est payé.",
+      "Je voudrais signaler un problème de chauffage.",
+      "Je voudrais emménager demain sans rendez-vous."
+    ],
+    "answer": "A",
+    "vocabulary": "visiter un appartement = 看房；prendre rendez-vous = 預約",
+    "pattern": "Est-ce que + 時間 + vous convient ? = ……這個時間方便嗎？",
+    "tef_tip": "先抓情境中的目的 visiter l’appartement，再找同時包含「看房＋約時間」的回答。",
+    "skill": "expression",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "RA015",
+    "mission": "renting_apartment",
+    "part": "Part 3: Landlord / Property Manager Interaction",
+    "question_type": "expression",
+    "question": "Vous voulez savoir ce qui est compris dans le loyer. Quelle question posez-vous ?",
+    "options": [
+      "Quand puis-je emménager ?",
+      "Qu’est-ce qui est inclus dans le loyer ?",
+      "Combien de chambres y a-t-il ?",
+      "Où se trouve la buanderie ?"
+    ],
+    "answer": "B",
+    "vocabulary": "compris / inclus = 包含的；loyer = 租金",
+    "pattern": "Qu’est-ce qui est inclus dans + 名詞 ? = ……裡包含什麼？",
+    "tef_tip": "題目用 compris，選項用 inclus。看到不同單字時，先判斷是不是在表達相同概念。",
+    "skill": "expression",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "RA016",
+    "mission": "renting_apartment",
+    "part": "Part 3: Landlord / Property Manager Interaction",
+    "question_type": "best_response",
+    "question": "Le propriétaire demande : « Quand souhaitez-vous emménager ? » Vous voulez emménager le 1er décembre. Que répondez-vous ?",
+    "options": [
+      "Je préfère un appartement meublé.",
+      "Je peux visiter samedi.",
+      "Je voudrais emménager le 1er décembre.",
+      "Le loyer est trop élevé."
+    ],
+    "answer": "C",
+    "vocabulary": "emménager = 搬入／入住；souhaiter = 希望",
+    "pattern": "Je voudrais emménager le + 日期. = 我想在……入住。",
+    "tef_tip": "看到 Quand... ?，先知道對方問的是時間，再回情境找入住日期。",
+    "skill": "expression",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "RA017",
+    "mission": "renting_apartment",
+    "part": "Part 3: Landlord / Property Manager Interaction",
+    "question_type": "expression",
+    "question": "Vous avez une voiture. Vous voulez savoir si une place est disponible et combien elle coûte. Quelle question posez-vous ?",
+    "options": [
+      "Est-ce que le stationnement est gratuit le week-end ?",
+      "Est-ce qu’il y a du stationnement dans la rue ?",
+      "Puis-je utiliser le stationnement des visiteurs ?",
+      "Est-ce qu’une place de stationnement est disponible, et combien coûte-t-elle par mois ?"
+    ],
+    "answer": "D",
+    "vocabulary": "place de stationnement = 停車位；disponible = 可提供的",
+    "pattern": "Est-ce que + 名詞 + est disponible ? = 有……可提供嗎？",
+    "tef_tip": "題目有兩個需求：有沒有停車位＋多少錢。答案必須同時回答這兩個資訊。",
+    "skill": "expression",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "RA018",
+    "mission": "renting_apartment",
+    "part": "Part 3: Landlord / Property Manager Interaction",
+    "question_type": "best_response",
+    "question": "Le chauffage de votre appartement ne fonctionne pas depuis hier. Que dites-vous au gestionnaire ?",
+    "options": [
+      "Le chauffage ne fonctionne pas depuis hier. Pourriez-vous le faire vérifier ?",
+      "Le robinet de la cuisine fuit depuis hier.",
+      "La lumière du corridor ne fonctionne pas.",
+      "Je voudrais savoir si le chauffage est inclus dans le loyer."
+    ],
+    "answer": "A",
+    "vocabulary": "chauffage = 暖氣；gestionnaire = 管理人員；faire vérifier = 請人檢查",
+    "pattern": "Pourriez-vous faire vérifier + 名詞 ? = 可以請人檢查……嗎？",
+    "tef_tip": "報修題先找「哪個設備＋出了什麼問題」。這題要同時對應 chauffage 和 ne fonctionne pas。",
+    "skill": "situation / expression",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "RA019",
+    "mission": "renting_apartment",
+    "part": "Part 3: Landlord / Property Manager Interaction",
+    "question_type": "best_response",
+    "question": "Le gestionnaire dit : « Le technicien peut passer mardi entre 13 h et 15 h. Est-ce que cela vous convient ? » Vous êtes disponible mardi après-midi. Que répondez-vous ?",
+    "options": [
+      "Non, je ne suis jamais disponible le mardi.",
+      "Oui, mardi entre 13 h et 15 h me convient.",
+      "Oui, mais seulement lundi matin.",
+      "Je préfère annuler la réparation."
+    ],
+    "answer": "B",
+    "vocabulary": "technicien = 維修人員；cela vous convient ? = 這個安排方便嗎？",
+    "pattern": "時間 + me convient. = ……這個時間對我方便。",
+    "tef_tip": "看到 cela vous convient ?，先確認對方是在問時間是否可以，再比較題目提供的 availability。",
+    "skill": "expression",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "RA020",
+    "mission": "renting_apartment",
+    "part": "Part 4: Mini Reading Documents",
+    "question_type": "reading",
+    "question": "À LOUER — Appartement meublé — 2 chambres；Stationnement inclus；Animaux non acceptés；Disponible le 1er janvier. Quel locataire correspond le mieux à cette annonce ?",
+    "options": [
+      "Une personne avec un chien qui veut emménager en décembre.",
+      "Une personne avec un chat qui cherche un appartement non meublé.",
+      "Une personne sans animal qui veut emménager en janvier et qui a une voiture.",
+      "Une personne qui veut emménager en novembre sans stationnement."
+    ],
+    "answer": "C",
+    "vocabulary": "meublé = 附家具的；stationnement inclus = 包含停車位；animaux non acceptés = 不接受寵物",
+    "pattern": "X inclus(e) / non inclus(e)",
+    "tef_tip": "先看每個選項的關鍵條件，再回廣告逐項核對；不用一次翻譯整則廣告。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "RA021",
+    "mission": "renting_apartment",
+    "part": "Part 4: Mini Reading Documents",
+    "question_type": "reading",
+    "question": "Appartement A — 1 chambre — 1 550 $/mois；Chauffage inclus；Animaux acceptés. Appartement B — 1 chambre — 1 500 $/mois；Stationnement inclus；Animaux non acceptés. Sophie a un chat et veut que le chauffage soit inclus. Quel appartement lui convient le mieux ?",
+    "options": [
+      "L’appartement A",
+      "L’appartement B",
+      "Les deux appartements",
+      "Aucun des deux appartements"
+    ],
+    "answer": "A",
+    "vocabulary": "convenir = 適合；chauffage inclus = 包含暖氣",
+    "pattern": "X convient à + 人 = X 適合某人",
+    "tef_tip": "比較題先抓題目中的必要條件。這題只需要確認 chat 和 chauffage inclus 兩點。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "RA022",
+    "mission": "renting_apartment",
+    "part": "Part 4: Mini Reading Documents",
+    "question_type": "reading",
+    "question": "RÉSUMÉ DU BAIL — Début du bail : 1er janvier；Durée : 12 mois；Loyer : 1 700 $ par mois；Dépôt pour les clés : 100 $. Quelle information est correcte ?",
+    "options": [
+      "Le bail commence le 1er février.",
+      "Le bail dure six mois.",
+      "Le dépôt pour les clés est de 100 $.",
+      "Le loyer est de 1 800 $ par mois."
+    ],
+    "answer": "C",
+    "vocabulary": "bail = 租約；dépôt = 押金／保證金；dépôt pour les clés = 鑰匙押金；durée = 期間",
+    "pattern": "un dépôt de + 金額 = ……金額的押金",
+    "tef_tip": "題目有多個數字時，先看每個數字旁邊的標籤，再核對選項；不要只靠數字大小判斷。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "RA023",
+    "mission": "renting_apartment",
+    "part": "Part 4: Mini Reading Documents",
+    "question_type": "reading",
+    "question": "FRAIS MENSUELS — Loyer : 1 650 $；Stationnement : 80 $；Chauffage inclus；Internet non inclus. Vous louez une place de stationnement. Combien paierez-vous par mois pour le loyer et le stationnement ?",
+    "options": [
+      "1 650 $",
+      "1 730 $",
+      "1 570 $",
+      "1 810 $"
+    ],
+    "answer": "B",
+    "vocabulary": "frais mensuels = 每月費用；stationnement = 停車位；internet non inclus = 不含網路",
+    "pattern": "X en plus du loyer = X 是房租之外的額外費用",
+    "tef_tip": "先確認題目只問 loyer + stationnement，其他資訊不用計算，再把兩個相關金額相加。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "RA024",
+    "mission": "renting_apartment",
+    "part": "Part 4: Mini Reading Documents",
+    "question_type": "reading",
+    "question": "AVIS D’ENTRETIEN — Travaux de plomberie jeudi de 9 h à 12 h. L’eau sera coupée pendant les travaux. Veuillez ne pas utiliser les robinets pendant cette période. Que doivent éviter les résidents jeudi matin ?",
+    "options": [
+      "Quitter l’immeuble.",
+      "Appeler le gestionnaire.",
+      "Utiliser l’électricité.",
+      "Utiliser les robinets entre 9 h et 12 h."
+    ],
+    "answer": "D",
+    "vocabulary": "travaux de plomberie = 水管維修工程；robinet = 水龍頭；coupé(e) = 中斷的",
+    "pattern": "éviter de + 動詞原形 = 避免做……",
+    "tef_tip": "題目問「要避免什麼」時，回公告找否定或禁止訊號。這題關鍵是 Veuillez ne pas...",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  },
+  {
+    "id": "RA025",
+    "mission": "renting_apartment",
+    "part": "Part 4: Mini Reading Documents",
+    "question_type": "reading",
+    "question": "ARRIVÉE DES NOUVEAUX LOCATAIRES — Les clés sont disponibles au bureau de gestion de 9 h à 17 h. Pour un déménagement, l’ascenseur doit être réservé au moins 48 heures à l’avance. Les déménagements sont permis après 13 h. Vous prévoyez déménager samedi à 14 h. Que devez-vous faire avant le déménagement ?",
+    "options": [
+      "Arriver avant 9 h.",
+      "Déménager avant 13 h.",
+      "Réserver l’ascenseur au moins 48 heures à l’avance.",
+      "Aller chercher les clés après 17 h."
+    ],
+    "answer": "C",
+    "vocabulary": "déménagement = 搬家；ascenseur = 電梯；réserver = 預約",
+    "pattern": "devoir être + 過去分詞 = 必須被……；Example: L’ascenseur doit être réservé. = 電梯必須事先預約。",
+    "tef_tip": "先看題目問的是「搬家前要做什麼」，再找表示提前準備的資訊。à l’avance 是重要訊號。",
+    "skill": "reading",
+    "difficulty": "A2",
+    "status": "draft"
+  }
+]
