@@ -27,9 +27,19 @@ const missionConfigs = {
     dataPath: "./data/banking.json",
     sequenceLabel: "Mission 3",
     scenarioZh: "銀行",
+    nextMissionId: "renting_apartment",
+    nextMissionLabel: "Renting an Apartment 已上線，可以繼續挑戰。",
+    retakeRandomization: "global"
+  },
+  renting_apartment: {
+    id: "renting_apartment",
+    title: "Renting an Apartment",
+    dataPath: "./data/renting_apartment.json",
+    sequenceLabel: "Mission 4",
+    scenarioZh: "租屋",
     nextMissionId: null,
     nextMissionLabel: "更多情境任務即將推出。",
-    retakeRandomization: "global"
+    retakeRandomization: "section"
   }
 };
 
@@ -60,6 +70,7 @@ const baseStorageKey = missionId === "coffee_shop"
   : `frenchQuestProgressV03_${missionId}`;
 const storageKey = `${progressStoragePrefix}${baseStorageKey}`;
 maybeMigrateEarlyAccessGroceryProgress();
+maybeMigrateEarlyAccessRentingProgress();
 const visitorIdStorageKey = "frenchQuestVisitorIdV1";
 const savedVocabularyStorageKey = "frenchQuestSavedVocabularyV1";
 const xpPerCorrect = 10;
@@ -138,6 +149,25 @@ function maybeMigrateEarlyAccessGroceryProgress() {
     localStorage.setItem(storageKey, earlyAccessProgress);
   } catch (error) {
     console.warn("Early Access Grocery progress migration skipped:", error);
+  }
+}
+
+function maybeMigrateEarlyAccessRentingProgress() {
+  if (!runtimeConfig.migrateEarlyAccessRentingProgress) return;
+  if (missionId !== "renting_apartment") return;
+  if (progressStoragePrefix) return;
+
+  try {
+    if (localStorage.getItem(storageKey)) return;
+
+    const earlyAccessStorageKey = `earlyAccess_${baseStorageKey}`;
+    const earlyAccessProgress = localStorage.getItem(earlyAccessStorageKey);
+    if (!earlyAccessProgress) return;
+
+    JSON.parse(earlyAccessProgress);
+    localStorage.setItem(storageKey, earlyAccessProgress);
+  } catch (error) {
+    console.warn("Early Access Renting progress migration skipped:", error);
   }
 }
 
@@ -774,6 +804,15 @@ function formatDuration(milliseconds) {
   return `${minutes}m ${seconds}s`;
 }
 
+function formatFrenchNumberSpacing(text) {
+  const value = String(text);
+  if (missionId !== "renting_apartment") return value;
+
+  return value
+    .replace(/(\d) (?=\d{3}\s*\$)/g, "$1\u202f")
+    .replace(/(\d) \$/g, "$1\u00a0$");
+}
+
 function getReviewQuestions() {
   const ids = uniqueIds([
     ...state.progress.wrongQuestionIds,
@@ -909,9 +948,11 @@ function renderHome() {
   const reviewCount = getReviewQuestions().length;
   const isGroceryPlayable = isMissionPublic("grocery_store");
   const isBankingVisible = isMissionVisibleOnHome("banking");
+  const isRentingPlayable = isMissionPublic("renting_apartment");
   const coffeeCardCta = getMissionCardCta("coffee_shop");
   const groceryCardCta = getMissionCardCta("grocery_store");
   const bankingCardCta = getMissionCardCta("banking");
+  const rentingCardCta = getMissionCardCta("renting_apartment");
   const currentMissionLabel = missionConfig.title;
 
   app.innerHTML = `
@@ -988,13 +1029,15 @@ function renderHome() {
             </div>
           ` : ""}
           <div class="route-arrow" aria-hidden="true">|</div>
-          <div class="route-stop">
+          <div class="route-stop ${isRentingPlayable ? "ready" : ""}">
             <div class="route-icon" aria-hidden="true">APT</div>
             <div>
               <p class="route-name">Renting an Apartment</p>
               <p class="route-preview">Practice French for apartment viewings, rent, utilities, and communicating with a landlord.</p>
             </div>
-            <span class="route-state">Coming Soon</span>
+            ${isRentingPlayable
+              ? `<button class="route-go" data-mission-launch="renting_apartment" data-mission-action="${rentingCardCta.toLowerCase()}" type="button">${rentingCardCta}</button>`
+              : `<span class="route-state">Coming Soon</span>`}
           </div>
         </div>
 
@@ -1227,12 +1270,12 @@ function renderQuestion() {
         <div class="meter-fill" style="--value: ${progress}%"></div>
       </div>
 
-      <p class="question-text">${question.question}</p>
+      <p class="question-text">${formatFrenchNumberSpacing(question.question)}</p>
 
       <div class="options">
         ${question.options.map((option, index) => `
           <button class="option ${state.selectedAnswer === index ? "selected" : ""}" data-option="${index}" type="button">
-            ${option}
+            ${formatFrenchNumberSpacing(option)}
           </button>
         `).join("")}
       </div>
@@ -1303,8 +1346,8 @@ function renderFeedback() {
           <p class="eyebrow">${state.reviewMode ? "Review Mode" : `${missionConfig.sequenceLabel}: ${missionConfig.title}`}</p>
           <h2>${answer.isCorrect ? "Correct" : "Incorrect"}</h2>
           <div class="review-line">
-            <p><strong>Question:</strong> ${question.question}</p>
-            <p><strong>Your answer:</strong> ${selectedAnswer}</p>
+            <p><strong>Question:</strong> ${formatFrenchNumberSpacing(question.question)}</p>
+            <p><strong>Your answer:</strong> ${formatFrenchNumberSpacing(selectedAnswer)}</p>
             <p><strong>Time spent:</strong> ${formatDuration(answer.timeSpentMs)}</p>
             ${answer.guessed ? `<p><strong>Marked:</strong> Guessed / Not sure</p>` : ""}
           </div>
@@ -1316,12 +1359,12 @@ function renderFeedback() {
         +${earnedXp} XP
       </div>
 
-      ${answer.isCorrect ? "" : `<p><strong>Correct answer:</strong> ${correctAnswer}</p>`}
+      ${answer.isCorrect ? "" : `<p><strong>Correct answer:</strong> ${formatFrenchNumberSpacing(correctAnswer)}</p>`}
 
       <div class="options" aria-label="Answered options">
         ${question.options.map((option, index) => {
           const className = index === correctIndex ? "correct" : index === answer.selectedIndex ? "wrong" : "";
-          return `<button class="option ${className}" type="button" disabled>${option}</button>`;
+          return `<button class="option ${className}" type="button" disabled>${formatFrenchNumberSpacing(option)}</button>`;
         }).join("")}
       </div>
 
