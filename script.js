@@ -1564,6 +1564,7 @@ function renderComplete() {
     ? `太好了！這次任務的待加強題目都已經複習完成。下一個任務：${missionConfig.nextMissionLabel}`
     : "下一步：複習答錯與不確定的題目，強化你的 TEF 情境理解。";
   const showCompletionCtas = !isReviewEnvironment && missionId !== "banking";
+  const showNextMissionCta = !isReviewEnvironment && canStartNextMission;
 
   app.innerHTML = `
     <section class="panel complete-card">
@@ -1624,7 +1625,7 @@ function renderComplete() {
 
       <div class="actions">
         ${reviewCount ? `<button class="primary-btn" id="completeReviewMission">複習 ${reviewCount} 題待加強</button>` : ""}
-        ${canStartNextMission ? `<button class="primary-btn" id="completeNextMission">開始 ${missionConfigs[nextMissionId].title} 任務</button>` : ""}
+        ${showNextMissionCta ? `<button class="primary-btn" id="completeNextMission">開始 ${missionConfigs[nextMissionId].title} 任務</button>` : ""}
         <button class="secondary-btn" id="backToJourney">回到加拿大任務地圖</button>
       </div>
     </section>
